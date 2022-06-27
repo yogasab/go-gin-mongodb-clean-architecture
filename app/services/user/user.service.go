@@ -10,6 +10,7 @@ import (
 type Service interface {
 	GetAllUsers() ([]entities.User, error)
 	GetUserByID(ID string) (entities.User, error)
+	GetUserByEmail(email string) (entities.User, error)
 }
 
 type service struct {
@@ -32,6 +33,19 @@ func (s *service) GetAllUsers() ([]entities.User, error) {
 func (s *service) GetUserByID(ID string) (entities.User, error) {
 	objID, _ := primitive.ObjectIDFromHex(ID)
 	user, err := s.userRepository.FindByID(objID)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return user, nil
+		}
+		return user, err
+	}
+
+	return user, nil
+}
+
+func (s *service) GetUserByEmail(email string) (entities.User, error) {
+	var user entities.User
+	user, err := s.userRepository.FindByEmail(email)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return user, nil
