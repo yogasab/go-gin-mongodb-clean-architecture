@@ -1,6 +1,7 @@
 package user
 
 import (
+	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/entities"
 	"go-gin-mongodb-clean-architecture/app/repositories/user"
 
@@ -11,6 +12,7 @@ type Service interface {
 	GetAllUsers() ([]entities.User, error)
 	GetUserByID(ID string) (entities.User, error)
 	GetUserByEmail(email string) (entities.User, error)
+	CheckUserAvailability(input dto.CheckUserAvailabilityInput) (bool, error)
 }
 
 type service struct {
@@ -54,4 +56,19 @@ func (s *service) GetUserByEmail(email string) (entities.User, error) {
 	}
 
 	return user, nil
+}
+
+func (s *service) CheckUserAvailability(input dto.CheckUserAvailabilityInput) (bool, error) {
+	isAvailable := false
+
+	_, err := s.userRepository.FindByEmail(input.Email)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			isAvailable = true
+			return isAvailable, nil
+		}
+		return isAvailable, err
+	}
+
+	return isAvailable, nil
 }
