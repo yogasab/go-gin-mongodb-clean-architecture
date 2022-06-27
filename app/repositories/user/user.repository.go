@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Reposisory interface {
 	FindAll() ([]entities.User, error)
+	FindByID(ID primitive.ObjectID) (entities.User, error)
 }
 
 type repository struct {
@@ -40,4 +42,17 @@ func (r *repository) FindAll() ([]entities.User, error) {
 	}
 
 	return users, nil
+}
+
+func (r *repository) FindByID(ID primitive.ObjectID) (entities.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var user entities.User
+	filter := bson.M{"id": ID}
+	if err := r.userCollection.FindOne(ctx, filter).Decode(&user); err != nil {
+		return user, err
+	}
+
+	return user, nil
 }
