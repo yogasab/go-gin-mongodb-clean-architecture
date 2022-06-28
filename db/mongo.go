@@ -32,7 +32,7 @@ func ConnectDB() *mongo.Client {
 }
 
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-	collection := client.Database("go-mux-mongodb-rest-api").Collection(collectionName)
+	collection := client.Database("go-gin-mongodb-clean-architecture").Collection(collectionName)
 
 	return collection
 }

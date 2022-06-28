@@ -13,6 +13,7 @@ type Service interface {
 	GetUserByID(ID string) (entities.User, error)
 	GetUserByEmail(email string) (entities.User, error)
 	CheckUserAvailability(input dto.CheckUserAvailabilityInput) (bool, error)
+	CreateUser(input dto.CreateNewUserInput) (string, error)
 }
 
 type service struct {
@@ -71,4 +72,24 @@ func (s *service) CheckUserAvailability(input dto.CheckUserAvailabilityInput) (b
 	}
 
 	return isAvailable, nil
+}
+
+func (s *service) CreateUser(input dto.CreateNewUserInput) (string, error) {
+	user := entities.User{}
+	user.ID = primitive.NewObjectID()
+	user.Name = input.Name
+	user.Email = input.Email
+	user.Location = input.Location
+	user.Occupation = input.Occupation
+	user.AvatarFileName = input.AvatarFileName
+
+	hashedPassword, _ := user.HashPassword(input.Password)
+	user.Password = hashedPassword
+
+	insertedID, err := s.userRepository.Create(user)
+	if err != nil {
+		return "", err
+	}
+
+	return insertedID, nil
 }

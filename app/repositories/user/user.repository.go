@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"go-gin-mongodb-clean-architecture/app/entities"
 	"time"
 
@@ -14,6 +15,7 @@ type Reposisory interface {
 	FindAll() ([]entities.User, error)
 	FindByID(ID primitive.ObjectID) (entities.User, error)
 	FindByEmail(email string) (entities.User, error)
+	Create(user entities.User) (string, error)
 }
 
 type repository struct {
@@ -69,4 +71,17 @@ func (r *repository) FindByEmail(email string) (entities.User, error) {
 	}
 
 	return user, nil
+}
+
+func (r *repository) Create(user entities.User) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := r.userCollection.InsertOne(ctx, user)
+	if err != nil {
+		return "", err
+	}
+
+	insertedID := fmt.Sprintf("%s", result.InsertedID)
+	return insertedID, nil
 }
