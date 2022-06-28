@@ -4,6 +4,7 @@ import (
 	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/entities"
 	"go-gin-mongodb-clean-architecture/app/repositories/user"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -81,7 +82,10 @@ func (s *service) CreateUser(input dto.CreateNewUserInput) (string, error) {
 	user.Email = input.Email
 	user.Location = input.Location
 	user.Occupation = input.Occupation
-	user.AvatarFileName = input.AvatarFileName
+	user.Role = "user"
+	user.AvatarFileName = ""
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
 
 	hashedPassword, _ := user.HashPassword(input.Password)
 	user.Password = hashedPassword

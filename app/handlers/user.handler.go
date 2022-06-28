@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/services/user"
 	"net/http"
 
@@ -38,4 +39,30 @@ func (h *userHandler) GetUserByID(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "User fetched successfully", "status": "success", "user": user})
+}
+
+func (h *userHandler) CreateUser(ctx *gin.Context) {
+	var input dto.CreateNewUserInput
+
+	err := ctx.ShouldBindJSON(&input)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	var emailInput dto.CheckUserAvailabilityInput
+	emailInput.Email = input.Email
+	isNotRegistered, err := h.userService.CheckUserAvailability(emailInput)
+	if !isNotRegistered {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to create new user", "status": "error", "errors": "User with correspond email is already registered, please try another"})
+		return
+	}
+
+	newUser, err := h.userService.CreateUser(input)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to create new user", "status": "error", "errors": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "New user created successfully", "status": "success", "data": newUser})
 }

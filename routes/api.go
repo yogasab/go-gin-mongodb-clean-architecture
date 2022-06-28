@@ -19,6 +19,7 @@ func InitializeRoutes(router *gin.Engine) {
 	userAPIRouter := router.Group("/api/v1/users")
 	{
 		userAPIRouter.GET("/", userAPIHandler.GetAllUsers)
+		userAPIRouter.POST("/", userAPIHandler.CreateUser)
 		userAPIRouter.GET("/:id", userAPIHandler.GetUserByID)
 	}
 }
