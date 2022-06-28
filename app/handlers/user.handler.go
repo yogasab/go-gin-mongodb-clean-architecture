@@ -66,3 +66,15 @@ func (h *userHandler) CreateUser(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "New user created successfully", "status": "success", "data": newUser})
 }
+
+func (h *userHandler) DeleteUserByID(ctx *gin.Context) {
+	ID := ctx.Param("id")
+
+	isDeleted, err := h.userService.DeleteUserByID(ID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "message": err.Error(), "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "User deleted successfully", "status": "success", "is_deleted": isDeleted})
+}

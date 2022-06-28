@@ -101,19 +101,15 @@ func (s *service) CreateUser(input dto.CreateNewUserInput) (string, error) {
 }
 
 func (s *service) DeleteUserByID(ID string) (bool, error) {
-	isDeleted := false
-
 	objID, _ := primitive.ObjectIDFromHex(ID)
 	result, err := s.userRepository.Delete(objID)
 	if err != nil {
-		if err.Error() == "mongo: no documents in result" {
-			return isDeleted, errors.New("User not found")
-		}
 		return false, err
 	}
 
-	if result == 1 {
-		isDeleted = true
+	if result == 0 {
+		return false, errors.New("User not found")
 	}
-	return isDeleted, nil
+
+	return true, nil
 }
