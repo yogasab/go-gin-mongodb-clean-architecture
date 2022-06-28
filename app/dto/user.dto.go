@@ -11,3 +11,12 @@ type CreateNewUserInput struct {
 	Location   string `json:"location" binding:"required"`
 	Occupation string `json:"occupation" binding:"required"`
 }
+
+type UpdateUserInput struct {
+	ID         string
+	Name       string `json:"name,omitempty" binding:"required"`
+	Email      string `json:"email,omitempty" binding:"required,email"`
+	Password   string `json:"password,omitempty" binding:"required"`
+	Location   string `json:"location,omitempty" binding:"required"`
+	Occupation string `json:"occupation,omitempty" binding:"required"`
+}

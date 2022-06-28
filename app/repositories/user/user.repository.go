@@ -17,6 +17,7 @@ type Reposisory interface {
 	FindByEmail(email string) (entities.User, error)
 	Create(user entities.User) (string, error)
 	Delete(ID primitive.ObjectID) (int64, error)
+	UpdateByID(ID primitive.ObjectID, user entities.User) (int64, error)
 }
 
 type repository struct {
@@ -98,4 +99,30 @@ func (r *repository) Delete(ID primitive.ObjectID) (int64, error) {
 	}
 
 	return result.DeletedCount, nil
+}
+
+func (r *repository) UpdateByID(ID primitive.ObjectID, user entities.User) (int64, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": ID}
+	update := bson.M{
+		"$set": bson.M{
+			"name":       user.Name,
+			"email":      user.Email,
+			"password":   user.Password,
+			"avatar":     user.AvatarFileName,
+			"role":       user.Role,
+			"location":   user.Location,
+			"occupation": user.Occupation,
+			"created_at": user.CreatedAt,
+			"updated_at": user.UpdatedAt,
+		},
+	}
+	result, err := r.userCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return 0, err
+	}
+
+	return result.ModifiedCount, nil
 }

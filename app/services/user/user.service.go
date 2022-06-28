@@ -17,6 +17,7 @@ type Service interface {
 	CheckUserAvailability(input dto.CheckUserAvailabilityInput) (bool, error)
 	CreateUser(input dto.CreateNewUserInput) (string, error)
 	DeleteUserByID(ID string) (bool, error)
+	UpdateUserByID(input dto.UpdateUserInput) (bool, error)
 }
 
 type service struct {
@@ -112,4 +113,40 @@ func (s *service) DeleteUserByID(ID string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (s *service) UpdateUserByID(input dto.UpdateUserInput) (bool, error) {
+	isUpdated := true
+
+	objID, _ := primitive.ObjectIDFromHex(input.ID)
+
+	updatedUser, err := s.userRepository.FindByID(objID)
+	if err != nil {
+		isUpdated = false
+		return isUpdated, err
+	}
+	updatedUser.Name = input.Name
+	updatedUser.Email = input.Email
+	updatedUser.Location = input.Location
+	updatedUser.Occupation = input.Occupation
+
+	hashedPassword, err := updatedUser.HashPassword(input.Password)
+	if err != nil {
+		isUpdated = false
+		return isUpdated, err
+	}
+	updatedUser.Password = hashedPassword
+
+	result, err := s.userRepository.UpdateByID(objID, updatedUser)
+	if err != nil {
+		isUpdated = false
+		return isUpdated, err
+	}
+
+	if result == 0 {
+		isUpdated = false
+		return isUpdated, err
+	}
+
+	return isUpdated, nil
 }
