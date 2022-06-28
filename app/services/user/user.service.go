@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/entities"
 	"go-gin-mongodb-clean-architecture/app/repositories/user"
@@ -15,6 +16,7 @@ type Service interface {
 	GetUserByEmail(email string) (entities.User, error)
 	CheckUserAvailability(input dto.CheckUserAvailabilityInput) (bool, error)
 	CreateUser(input dto.CreateNewUserInput) (string, error)
+	DeleteUserByID(ID string) (bool, error)
 }
 
 type service struct {
@@ -96,4 +98,22 @@ func (s *service) CreateUser(input dto.CreateNewUserInput) (string, error) {
 	}
 
 	return insertedID, nil
+}
+
+func (s *service) DeleteUserByID(ID string) (bool, error) {
+	isDeleted := false
+
+	objID, _ := primitive.ObjectIDFromHex(ID)
+	result, err := s.userRepository.Delete(objID)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return isDeleted, errors.New("User not found")
+		}
+		return false, err
+	}
+
+	if result == 1 {
+		isDeleted = true
+	}
+	return isDeleted, nil
 }

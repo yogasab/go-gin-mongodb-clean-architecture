@@ -16,6 +16,7 @@ type Reposisory interface {
 	FindByID(ID primitive.ObjectID) (entities.User, error)
 	FindByEmail(email string) (entities.User, error)
 	Create(user entities.User) (string, error)
+	Delete(ID primitive.ObjectID) (int64, error)
 }
 
 type repository struct {
@@ -84,4 +85,17 @@ func (r *repository) Create(user entities.User) (string, error) {
 
 	insertedID := fmt.Sprintf("%s", result.InsertedID)
 	return insertedID, nil
+}
+
+func (r *repository) Delete(ID primitive.ObjectID) (int64, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": ID}
+	result, err := r.userCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		return 0, err
+	}
+
+	return result.DeletedCount, nil
 }
