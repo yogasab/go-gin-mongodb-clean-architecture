@@ -20,3 +20,8 @@ type UpdateUserInput struct {
 	Location   string `json:"location,omitempty" binding:"required"`
 	Occupation string `json:"occupation,omitempty" binding:"required"`
 }
+
+type UpdloadUserAvatarInput struct {
+	ID     string
+	Avatar string `form:"avatar" binding:"required"`
+}

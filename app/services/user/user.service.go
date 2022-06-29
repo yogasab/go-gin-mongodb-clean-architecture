@@ -18,6 +18,7 @@ type Service interface {
 	CreateUser(input dto.CreateNewUserInput) (string, error)
 	DeleteUserByID(ID string) (bool, error)
 	UpdateUserByID(input dto.UpdateUserInput) (bool, error)
+	UploadUserAvatar(input dto.UpdloadUserAvatarInput) (bool, error)
 }
 
 type service struct {
@@ -149,4 +150,28 @@ func (s *service) UpdateUserByID(input dto.UpdateUserInput) (bool, error) {
 	}
 
 	return isUpdated, nil
+}
+
+func (s *service) UploadUserAvatar(input dto.UpdloadUserAvatarInput) (bool, error) {
+	isUploaded := true
+
+	objID, _ := primitive.ObjectIDFromHex(input.ID)
+
+	updatedUser, err := s.userRepository.FindByID(objID)
+	if err != nil {
+		isUploaded = false
+		return isUploaded, err
+	}
+
+	updatedUser.AvatarFileName = input.Avatar
+	result, err := s.userRepository.UpdateByID(objID, updatedUser)
+	if err != nil {
+		isUploaded = false
+		return isUploaded, err
+	}
+
+	if result == 1 {
+		isUploaded = true
+	}
+	return isUploaded, nil
 }
