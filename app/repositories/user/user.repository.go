@@ -54,7 +54,7 @@ func (r *repository) FindByID(ID primitive.ObjectID) (entities.User, error) {
 	defer cancel()
 
 	var user entities.User
-	filter := bson.M{"id": ID}
+	filter := bson.M{"_id": ID}
 	if err := r.userCollection.FindOne(ctx, filter).Decode(&user); err != nil {
 		return user, err
 	}

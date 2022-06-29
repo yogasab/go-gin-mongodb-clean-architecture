@@ -22,5 +22,6 @@ func InitializeRoutes(router *gin.Engine) {
 		userAPIRouter.POST("/", userAPIHandler.CreateUser)
 		userAPIRouter.GET("/:id", userAPIHandler.GetUserByID)
 		userAPIRouter.DELETE("/:id", userAPIHandler.DeleteUserByID)
+		userAPIRouter.PUT("/:id", userAPIHandler.UpdateUserByID)
 	}
 }

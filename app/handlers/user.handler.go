@@ -78,3 +78,27 @@ func (h *userHandler) DeleteUserByID(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "User deleted successfully", "status": "success", "is_deleted": isDeleted})
 }
+
+func (h *userHandler) UpdateUserByID(ctx *gin.Context) {
+	var input dto.UpdateUserInput
+
+	err := ctx.ShouldBindJSON(&input)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	ID := ctx.Param("id")
+	input.ID = ID
+	isUpdated, err := h.userService.UpdateUserByID(input)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			ctx.JSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "message": "Failed to update user", "status": "error", "errors": "User not found"})
+			return
+		}
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to update user", "status": "error", "errors": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "User updated successfully", "status": "success", "is_updated": isUpdated})
+}
