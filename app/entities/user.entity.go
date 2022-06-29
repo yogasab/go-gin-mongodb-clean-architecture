@@ -28,3 +28,11 @@ func (u User) HashPassword(password string) (string, error) {
 
 	return string(hashedPassword), nil
 }
+
+func (u User) MatchedPassword(hashedPassword string, plainPassword string) (bool, error) {
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword)); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

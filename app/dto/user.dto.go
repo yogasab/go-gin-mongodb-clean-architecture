@@ -24,3 +24,8 @@ type UpdateUserInput struct {
 type UpdloadUserAvatarInput struct {
 	ID string
 }
+
+type LoginUserInput struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}

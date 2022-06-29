@@ -3,6 +3,7 @@ package routes
 import (
 	"go-gin-mongodb-clean-architecture/app/handlers"
 	userRepo "go-gin-mongodb-clean-architecture/app/repositories/user"
+	"go-gin-mongodb-clean-architecture/app/services/auth"
 	userServ "go-gin-mongodb-clean-architecture/app/services/user"
 	"go-gin-mongodb-clean-architecture/db"
 
@@ -15,6 +16,9 @@ func InitializeRoutes(router *gin.Engine) {
 	userRepository := userRepo.NewUserRepository(userCollection)
 	userService := userServ.NewService(userRepository)
 	userAPIHandler := handlers.NewUserHandler(userService)
+
+	// auth
+	authService := auth.NewService(userService)
 
 	userAPIRouter := router.Group("/api/v1/users")
 	{
