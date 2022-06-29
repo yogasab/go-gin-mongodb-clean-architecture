@@ -23,5 +23,6 @@ func InitializeRoutes(router *gin.Engine) {
 		userAPIRouter.GET("/:id", userAPIHandler.GetUserByID)
 		userAPIRouter.DELETE("/:id", userAPIHandler.DeleteUserByID)
 		userAPIRouter.PUT("/:id", userAPIHandler.UpdateUserByID)
+		userAPIRouter.POST("/avatars", userAPIHandler.UploadUserAvatar)
 	}
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/services/user"
 	"net/http"
@@ -101,4 +102,36 @@ func (h *userHandler) UpdateUserByID(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "User updated successfully", "status": "success", "is_updated": isUpdated})
+}
+
+func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
+	var input dto.UpdloadUserAvatarInput
+
+	err := ctx.ShouldBind(&input)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	input.ID = "62bbc5f1a7dbcd9b551b7db5"
+	file, err := ctx.FormFile("avatar")
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to upload image", "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	fileLocation := fmt.Sprintf("assets/images/%s-%s", input.ID, file.Filename)
+
+	isUploaded, err := h.userService.UploadUserAvatar(input, fileLocation)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to upload image", "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	if err = ctx.SaveUploadedFile(file, fileLocation); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to upload image", "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "Avatar uploaded successfully", "status": "success", "is_uploaded": isUploaded})
 }

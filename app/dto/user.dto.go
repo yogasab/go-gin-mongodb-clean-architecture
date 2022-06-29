@@ -22,6 +22,5 @@ type UpdateUserInput struct {
 }
 
 type UpdloadUserAvatarInput struct {
-	ID     string
-	Avatar string `form:"avatar" binding:"required"`
+	ID string
 }
