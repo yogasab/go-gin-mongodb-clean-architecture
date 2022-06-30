@@ -4,6 +4,8 @@ import (
 	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/entities"
 	"go-gin-mongodb-clean-architecture/app/services/user"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 type Service interface {
@@ -14,6 +16,8 @@ type Service interface {
 type service struct {
 	userService user.Service
 }
+
+var SECRET_KEY = []byte("s3cr3T_k3Y")
 
 func NewService(userService user.Service) *service {
 	return &service{userService: userService}
@@ -43,4 +47,18 @@ func (s *service) RegisterUser(input dto.CreateNewUserInput) (string, error) {
 	}
 
 	return newUser, nil
+}
+
+func (s *service) GenerateToken(UserID string) (string, error) {
+	claims := jwt.MapClaims{}
+	claims["user_id"] = UserID
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	jwtToken, err := token.SignedString(SECRET_KEY)
+	if err != nil {
+		return jwtToken, err
+	}
+
+	return jwtToken, nil
 }
