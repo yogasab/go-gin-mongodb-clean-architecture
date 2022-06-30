@@ -34,5 +34,6 @@ func InitializeRoutes(router *gin.Engine) {
 	authAPIRouter := router.Group("/api/v1/auth")
 	{
 		authAPIRouter.POST("/login", userAPIHandler.LoginUser)
+		authAPIRouter.POST("/register", userAPIHandler.RegisterUser)
 	}
 }

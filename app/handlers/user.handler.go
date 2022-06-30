@@ -155,3 +155,21 @@ func (h *userHandler) LoginUser(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "New user created successfully", "status": "success", "user": loggedinUser})
 }
+
+func (h *userHandler) RegisterUser(ctx *gin.Context) {
+	var input dto.CreateNewUserInput
+
+	err := ctx.ShouldBindJSON(&input)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	newUser, err := h.authService.RegisterUser(input)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "User registered successfully", "status": "success", "user": newUser})
+}
