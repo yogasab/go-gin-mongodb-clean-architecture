@@ -98,6 +98,18 @@ func (s *service) CreateUser(input dto.CreateNewUserInput, jwtToken string) (str
 	hashedPassword, _ := user.HashPassword(input.Password)
 	user.Password = hashedPassword
 
+	// Find user by email
+	inputCheckUser := dto.CheckUserAvailabilityInput{}
+	inputCheckUser.Email = input.Email
+
+	userAvailability, err := s.CheckUserAvailability(inputCheckUser)
+	if err != nil {
+		return "", err
+	}
+	if !userAvailability {
+		return "", errors.New("Email is already registered, please try another")
+	}
+
 	insertedID, err := s.userRepository.Create(user)
 	if err != nil {
 		return "", err
