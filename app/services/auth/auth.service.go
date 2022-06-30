@@ -10,7 +10,8 @@ import (
 
 type Service interface {
 	LoginUser(input dto.LoginUserInput) (entities.User, error)
-	RegisterUser(input dto.CreateNewUserInput) (string, error)
+	RegisterUser(input dto.CreateNewUserInput, jwtToken string) (string, error)
+	GenerateToken(UserID string) (string, error)
 }
 
 type service struct {
@@ -40,8 +41,8 @@ func (s *service) LoginUser(input dto.LoginUserInput) (entities.User, error) {
 	return registeredUser, nil
 }
 
-func (s *service) RegisterUser(input dto.CreateNewUserInput) (string, error) {
-	newUser, err := s.userService.CreateUser(input)
+func (s *service) RegisterUser(input dto.CreateNewUserInput, jwtToken string) (string, error) {
+	newUser, err := s.userService.CreateUser(input, jwtToken)
 	if err != nil {
 		return "", err
 	}

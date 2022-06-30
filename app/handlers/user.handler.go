@@ -5,6 +5,7 @@ import (
 	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/services/auth"
 	"go-gin-mongodb-clean-architecture/app/services/user"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -61,13 +62,21 @@ func (h *userHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	newUser, err := h.userService.CreateUser(input)
+	ID := primitive.NewObjectID()
+	input.ID = ID
+	jwtToken, err := h.authService.GenerateToken(ID.Hex())
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": "Failed to authenticate user"})
+		return
+	}
+
+	_, err = h.userService.CreateUser(input, jwtToken)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to create new user", "status": "error", "errors": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "New user created successfully", "status": "success", "data": newUser})
+	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "New user created successfully", "status": "success", "data": jwtToken})
 }
 
 func (h *userHandler) DeleteUserByID(ctx *gin.Context) {
@@ -165,11 +174,19 @@ func (h *userHandler) RegisterUser(ctx *gin.Context) {
 		return
 	}
 
-	newUser, err := h.authService.RegisterUser(input)
+	ID := primitive.NewObjectID()
+	input.ID = ID
+	jwtToken, err := h.authService.GenerateToken(ID.Hex())
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": "Failed to authenticate user"})
+		return
+	}
+
+	_, err = h.authService.RegisterUser(input, jwtToken)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "User registered successfully", "status": "success", "user": newUser})
+	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "User registered successfully", "status": "success", "user": jwtToken})
 }

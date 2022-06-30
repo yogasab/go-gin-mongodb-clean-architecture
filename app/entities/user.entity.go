@@ -17,6 +17,7 @@ type User struct {
 	Role           string             `bson:"role"`
 	Location       string             `bson:"location"`
 	Occupation     string             `bson:"occupation"`
+	Token          string             `bson:"token"`
 	CreatedAt      time.Time          `bson:"created_at"`
 	UpdatedAt      time.Time          `bson:"updated_at"`
 }

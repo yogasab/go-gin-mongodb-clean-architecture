@@ -15,7 +15,7 @@ type Service interface {
 	GetUserByID(ID string) (entities.User, error)
 	GetUserByEmail(email string) (entities.User, error)
 	CheckUserAvailability(input dto.CheckUserAvailabilityInput) (bool, error)
-	CreateUser(input dto.CreateNewUserInput) (string, error)
+	CreateUser(input dto.CreateNewUserInput, jwtToken string) (string, error)
 	DeleteUserByID(ID string) (bool, error)
 	UpdateUserByID(input dto.UpdateUserInput) (bool, error)
 	UploadUserAvatar(input dto.UpdloadUserAvatarInput, fileLocation string) (bool, error)
@@ -82,13 +82,14 @@ func (s *service) CheckUserAvailability(input dto.CheckUserAvailabilityInput) (b
 	return isAvailable, nil
 }
 
-func (s *service) CreateUser(input dto.CreateNewUserInput) (string, error) {
+func (s *service) CreateUser(input dto.CreateNewUserInput, jwtToken string) (string, error) {
 	user := entities.User{}
-	user.ID = primitive.NewObjectID()
+	user.ID = input.ID
 	user.Name = input.Name
 	user.Email = input.Email
 	user.Location = input.Location
 	user.Occupation = input.Occupation
+	user.Token = jwtToken
 	user.Role = "user"
 	user.AvatarFileName = ""
 	user.CreatedAt = time.Now()

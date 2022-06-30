@@ -114,6 +114,7 @@ func (r *repository) UpdateByID(ID primitive.ObjectID, user entities.User) (int6
 			"avatar":     user.AvatarFileName,
 			"role":       user.Role,
 			"location":   user.Location,
+			"token":      user.Token,
 			"occupation": user.Occupation,
 			"created_at": user.CreatedAt,
 			"updated_at": user.UpdatedAt,

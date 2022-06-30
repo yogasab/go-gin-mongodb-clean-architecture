@@ -1,10 +1,13 @@
 package dto
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type CheckUserAvailabilityInput struct {
 	Email string `json:"email" binding:"required,email"`
 }
 
 type CreateNewUserInput struct {
+	ID         primitive.ObjectID
 	Name       string `json:"name" binding:"required"`
 	Email      string `json:"email" binding:"required,email"`
 	Password   string `json:"password" binding:"required"`
