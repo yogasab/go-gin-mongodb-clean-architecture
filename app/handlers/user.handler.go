@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"go-gin-mongodb-clean-architecture/app/dto"
+	"go-gin-mongodb-clean-architecture/app/services/auth"
 	"go-gin-mongodb-clean-architecture/app/services/user"
 	"net/http"
 
@@ -11,10 +12,11 @@ import (
 
 type userHandler struct {
 	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service) *userHandler {
-	return &userHandler{userService: userService}
+func NewUserHandler(userService user.Service, authService auth.Service) *userHandler {
+	return &userHandler{userService: userService, authService: authService}
 }
 
 func (h *userHandler) GetAllUsers(ctx *gin.Context) {
@@ -134,4 +136,22 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "Avatar uploaded successfully", "status": "success", "is_uploaded": isUploaded})
+}
+
+func (h *userHandler) LoginUser(ctx *gin.Context) {
+	var input dto.LoginUserInput
+
+	err := ctx.ShouldBindJSON(&input)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		return
+	}
+
+	loggedinUser, err := h.authService.LoginUser(input)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "New user created successfully", "status": "success", "user": loggedinUser})
 }

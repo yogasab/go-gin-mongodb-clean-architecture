@@ -11,14 +11,15 @@ import (
 )
 
 func InitializeRoutes(router *gin.Engine) {
+
 	// user
 	userCollection := db.GetCollection(db.DB, "users")
 	userRepository := userRepo.NewUserRepository(userCollection)
 	userService := userServ.NewService(userRepository)
-	userAPIHandler := handlers.NewUserHandler(userService)
-
 	// auth
 	authService := auth.NewService(userService)
+
+	userAPIHandler := handlers.NewUserHandler(userService, authService)
 
 	userAPIRouter := router.Group("/api/v1/users")
 	{
@@ -28,5 +29,10 @@ func InitializeRoutes(router *gin.Engine) {
 		userAPIRouter.DELETE("/:id", userAPIHandler.DeleteUserByID)
 		userAPIRouter.PUT("/:id", userAPIHandler.UpdateUserByID)
 		userAPIRouter.POST("/avatars", userAPIHandler.UploadUserAvatar)
+	}
+
+	authAPIRouter := router.Group("/api/v1/auth")
+	{
+		authAPIRouter.POST("/login", userAPIHandler.LoginUser)
 	}
 }

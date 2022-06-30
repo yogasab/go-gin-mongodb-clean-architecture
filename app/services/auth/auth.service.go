@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"errors"
 	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/entities"
 	"go-gin-mongodb-clean-architecture/app/services/user"
@@ -9,6 +8,7 @@ import (
 
 type Service interface {
 	LoginUser(input dto.LoginUserInput) (entities.User, error)
+	RegisterUser(input dto.CreateNewUserInput) (string, error)
 }
 
 type service struct {
@@ -25,14 +25,22 @@ func (s *service) LoginUser(input dto.LoginUserInput) (entities.User, error) {
 	password := input.Password
 
 	registeredUser, err := s.userService.GetUserByEmail(email)
-	if err == nil {
-		return user, errors.New("User not registered, please register first")
+	if err != nil {
+		return user, err
 	}
 
-	isMatched, err := user.MatchedPassword(registeredUser.Password, password)
-	if err != nil || !isMatched {
-		return user, errors.New("Invalid credentials")
+	if _, err = user.MatchedPassword(registeredUser.Password, password); err != nil {
+		return user, err
 	}
 
 	return registeredUser, nil
+}
+
+func (s *service) RegisterUser(input dto.CreateNewUserInput) (string, error) {
+	newUser, err := s.userService.CreateUser(input)
+	if err != nil {
+		return "", err
+	}
+
+	return newUser, nil
 }

@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,7 +32,7 @@ func (u User) HashPassword(password string) (string, error) {
 
 func (u User) MatchedPassword(hashedPassword string, plainPassword string) (bool, error) {
 	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword)); err != nil {
-		return false, err
+		return false, errors.New("Invalid credentials")
 	}
 
 	return true, nil

@@ -54,6 +54,9 @@ func (s *service) GetUserByID(ID string) (entities.User, error) {
 func (s *service) GetUserByEmail(email string) (entities.User, error) {
 	var user entities.User
 	user, err := s.userRepository.FindByEmail(email)
+	if user.Name == "" {
+		return user, errors.New("User not registered, please register first")
+	}
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return user, nil
