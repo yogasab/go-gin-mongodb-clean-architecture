@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"go-gin-mongodb-clean-architecture/app/dto"
+	"go-gin-mongodb-clean-architecture/app/entities"
 	"go-gin-mongodb-clean-architecture/app/services/auth"
 	"go-gin-mongodb-clean-architecture/app/services/user"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -124,7 +125,8 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 		return
 	}
 
-	input.ID = "62bbc5f1a7dbcd9b551b7db5"
+	user := ctx.MustGet("user").(entities.User)
+	input.ID = user.ID.Hex()
 	file, err := ctx.FormFile("avatar")
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to upload image", "status": "failed", "errors": err.Error()})
@@ -194,4 +196,10 @@ func (h *userHandler) RegisterUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "User registered successfully", "status": "success", "user": jwtToken})
+}
+
+func (h *userHandler) MyProfile(ctx *gin.Context) {
+	user := ctx.MustGet("user").(entities.User)
+
+	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "Profile fetched successfully", "status": "success", "user": user})
 }

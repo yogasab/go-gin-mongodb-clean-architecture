@@ -29,6 +29,7 @@ func InitializeRoutes(router *gin.Engine) {
 		userAPIRouter.DELETE("/:id", userAPIHandler.DeleteUserByID)
 		userAPIRouter.PUT("/:id", userAPIHandler.UpdateUserByID)
 		userAPIRouter.POST("/avatars", userAPIHandler.UploadUserAvatar)
+		userAPIRouter.GET("/profile", middlewares.AuthMiddleware(authService, userService), userAPIHandler.MyProfile)
 	}
 
 	authAPIRouter := router.Group("/api/v1/auth")
