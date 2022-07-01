@@ -162,7 +162,12 @@ func (h *userHandler) LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "New user created successfully", "status": "success", "user": loggedinUser})
+	jwtToken, err := h.authService.GenerateToken(loggedinUser.ID.Hex())
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"code": http.StatusOK, "message": "New user created successfully", "status": "success", "errors": err.Error()})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "New user created successfully", "status": "success", "user": loggedinUser, "token": jwtToken})
 }
 
 func (h *userHandler) RegisterUser(ctx *gin.Context) {

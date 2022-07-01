@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/entities"
 	"go-gin-mongodb-clean-architecture/app/services/user"
@@ -12,6 +13,7 @@ type Service interface {
 	LoginUser(input dto.LoginUserInput) (entities.User, error)
 	RegisterUser(input dto.CreateNewUserInput, jwtToken string) (string, error)
 	GenerateToken(UserID string) (string, error)
+	ValidateToken(encodedToken string) (*jwt.Token, error)
 }
 
 type service struct {
@@ -62,4 +64,18 @@ func (s *service) GenerateToken(UserID string) (string, error) {
 	}
 
 	return jwtToken, nil
+}
+
+func (s *service) ValidateToken(encodedToken string) (*jwt.Token, error) {
+	token, err := jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, errors.New("Invalid token type")
+		}
+		return []byte(SECRET_KEY), nil
+	})
+	if err != nil {
+		return token, err
+	}
+	return token, nil
 }
