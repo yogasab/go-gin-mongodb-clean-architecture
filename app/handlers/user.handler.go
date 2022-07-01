@@ -6,6 +6,7 @@ import (
 	"go-gin-mongodb-clean-architecture/app/entities"
 	"go-gin-mongodb-clean-architecture/app/services/auth"
 	"go-gin-mongodb-clean-architecture/app/services/user"
+	"go-gin-mongodb-clean-architecture/helpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 
@@ -24,10 +25,12 @@ func NewUserHandler(userService user.Service, authService auth.Service) *userHan
 func (h *userHandler) GetAllUsers(ctx *gin.Context) {
 	users, err := h.userService.GetAllUsers()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"errors": err.Error()})
+		response := helpers.APIResponse(http.StatusInternalServerError, "success", "Failed to process request", users)
+		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "Users fetched successfully", "status": "success", "users": users})
+	response := helpers.APIResponse(http.StatusOK, "success", "New user created successfully", users)
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (h *userHandler) GetUserByID(ctx *gin.Context) {
@@ -35,15 +38,17 @@ func (h *userHandler) GetUserByID(ctx *gin.Context) {
 
 	user, err := h.userService.GetUserByID(ID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"errors": err.Error()})
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to process request", err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 	if user.Name == "" {
-		ctx.JSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "message": "User not found", "status": "failed", "user": nil})
+		response := helpers.APIResponse(http.StatusNotFound, "failed", "User not found", nil)
+		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "User fetched successfully", "status": "success", "user": user})
+	response := helpers.APIResponse(http.StatusOK, "success", "User fetched successfully", user)
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (h *userHandler) CreateUser(ctx *gin.Context) {
@@ -51,7 +56,8 @@ func (h *userHandler) CreateUser(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", err.Error())
+		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
@@ -59,7 +65,8 @@ func (h *userHandler) CreateUser(ctx *gin.Context) {
 	emailInput.Email = input.Email
 	isNotRegistered, err := h.userService.CheckUserAvailability(emailInput)
 	if !isNotRegistered {
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to create new user", "status": "error", "errors": "User with correspond email is already registered, please try another"})
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to create new user", "User with correspond email is already registered, please try another")
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -67,17 +74,19 @@ func (h *userHandler) CreateUser(ctx *gin.Context) {
 	input.ID = ID
 	jwtToken, err := h.authService.GenerateToken(ID.Hex())
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": "Failed to authenticate user"})
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to authenticate user", err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	_, err = h.userService.CreateUser(input, jwtToken)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to create new user", "status": "error", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to create new user", err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-
-	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "New user created successfully", "status": "success", "data": jwtToken})
+	response := helpers.APIResponse(http.StatusCreated, "success", "New user created successfully", jwtToken)
+	ctx.JSON(http.StatusCreated, response)
 }
 
 func (h *userHandler) DeleteUserByID(ctx *gin.Context) {
@@ -85,11 +94,12 @@ func (h *userHandler) DeleteUserByID(ctx *gin.Context) {
 
 	isDeleted, err := h.userService.DeleteUserByID(ID)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "message": err.Error(), "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusNotFound, "failed", err.Error(), err)
+		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "User deleted successfully", "status": "success", "is_deleted": isDeleted})
+	response := helpers.APIResponse(http.StatusOK, "success", "User deleted successfully", isDeleted)
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (h *userHandler) UpdateUserByID(ctx *gin.Context) {
@@ -97,7 +107,8 @@ func (h *userHandler) UpdateUserByID(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", err)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
@@ -106,14 +117,17 @@ func (h *userHandler) UpdateUserByID(ctx *gin.Context) {
 	isUpdated, err := h.userService.UpdateUserByID(input)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
-			ctx.JSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "message": "Failed to update user", "status": "error", "errors": "User not found"})
+			response := helpers.APIResponse(http.StatusNotFound, "error", "Failed to update user", "User not found")
+			ctx.JSON(http.StatusNotFound, response)
 			return
 		}
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to update user", "status": "error", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to update user", err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "User updated successfully", "status": "success", "is_updated": isUpdated})
+	response := helpers.APIResponse(http.StatusOK, "success", "User updated successfully", isUpdated)
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
@@ -121,7 +135,8 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 
 	err := ctx.ShouldBind(&input)
 	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", err)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
@@ -129,7 +144,8 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 	input.ID = user.ID.Hex()
 	file, err := ctx.FormFile("avatar")
 	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to upload image", "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to upload image", err)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
@@ -137,16 +153,19 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 
 	isUploaded, err := h.userService.UploadUserAvatar(input, fileLocation)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to upload image", "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to upload image", err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	if err = ctx.SaveUploadedFile(file, fileLocation); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to upload image", "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to upload image", err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "Avatar uploaded successfully", "status": "success", "is_uploaded": isUploaded})
+	response := helpers.APIResponse(http.StatusOK, "success", "Avatar uploaded successfully", isUploaded)
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (h *userHandler) LoginUser(ctx *gin.Context) {
@@ -154,22 +173,27 @@ func (h *userHandler) LoginUser(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", err)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
 	loggedinUser, err := h.authService.LoginUser(input)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to authenticate user", err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	jwtToken, err := h.authService.GenerateToken(loggedinUser.ID.Hex())
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"code": http.StatusOK, "message": "New user created successfully", "status": "success", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusUnauthorized, "failed", "Failed to authenticate user", err)
+		ctx.JSON(http.StatusUnauthorized, response)
+		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "New user created successfully", "status": "success", "user": loggedinUser, "token": jwtToken})
+	response := helpers.APIResponse(http.StatusOK, "success", "New user created successfully", jwtToken)
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (h *userHandler) RegisterUser(ctx *gin.Context) {
@@ -177,7 +201,8 @@ func (h *userHandler) RegisterUser(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": http.StatusUnprocessableEntity, "message": "Failed to process request", "status": "failed", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", err)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
@@ -185,21 +210,25 @@ func (h *userHandler) RegisterUser(ctx *gin.Context) {
 	input.ID = ID
 	jwtToken, err := h.authService.GenerateToken(ID.Hex())
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": "Failed to authenticate user"})
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to process request", err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	_, err = h.authService.RegisterUser(input, jwtToken)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "message": "Failed to authenticate user", "status": "error", "errors": err.Error()})
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to authenticate user", err)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "message": "User registered successfully", "status": "success", "user": jwtToken})
+	response := helpers.APIResponse(http.StatusCreated, "success", "User registered successfully", jwtToken)
+	ctx.JSON(http.StatusCreated, response)
 }
 
 func (h *userHandler) MyProfile(ctx *gin.Context) {
 	user := ctx.MustGet("user").(entities.User)
 
-	ctx.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "message": "Profile fetched successfully", "status": "success", "user": user})
+	response := helpers.APIResponse(http.StatusOK, "success", "Profile fetched successfully", user)
+	ctx.JSON(http.StatusOK, response)
 }
