@@ -1,6 +1,7 @@
 package campaign
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gosimple/slug"
 	"go-gin-mongodb-clean-architecture/app/dto"
@@ -35,12 +36,15 @@ func (s *campaignService) CreateCampaign(input dto.CreateCampaignInput) (string,
 	campaign.User = input.User
 	campaign.GoalAmount = input.GoalAmount
 	campaign.CurrentAmount = 0
-
-	campaignSlug := slug.Make(fmt.Sprintf("%s-%s", input.Title, campaign.ID.Hex()))
+	campaignSlug := slug.Make(fmt.Sprintf("%s-%s", input.Title, input.User.Hex()))
 	campaign.Slug = campaignSlug
-
 	campaign.CreatedAt = time.Now()
 	campaign.UpdatedAt = time.Now()
+
+	isExist, _ := s.campaignRepository.FindBySlug(campaignSlug)
+	if isExist.Title != "" {
+		return "", errors.New("Campaign is already created, please make another unique campaign")
+	}
 
 	newCampaign, err := s.campaignRepository.Create(campaign)
 	if err != nil {

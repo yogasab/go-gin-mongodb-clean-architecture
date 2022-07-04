@@ -31,7 +31,7 @@ func (h *campaignHandler) CreateCampaign(ctx *gin.Context) {
 
 	newCampaign, err := h.campaignService.CreateCampaign(input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to create campaign", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to create campaign", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
