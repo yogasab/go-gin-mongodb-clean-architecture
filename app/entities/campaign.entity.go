@@ -18,4 +18,5 @@ type Campaign struct {
 	Slug             string             `bson:"slug"`
 	CreatedAt        time.Time          `bson:"created_at"`
 	UpdatedAt        time.Time          `bson:"updated_at"`
+	Users            []User             `bson:"users"`
 }

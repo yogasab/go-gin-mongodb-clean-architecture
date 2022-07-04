@@ -184,7 +184,7 @@ func (h *userHandler) LoginUser(ctx *gin.Context) {
 
 	loggedinUser, err := h.authService.LoginUser(input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to authenticate user", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to authenticate user", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -197,7 +197,7 @@ func (h *userHandler) LoginUser(ctx *gin.Context) {
 	}
 
 	userFormatter := dto.FormatUser(loggedinUser)
-	response := helpers.APIResponse(http.StatusOK, "success", "New user created successfully", gin.H{"user": userFormatter, "token": jwtToken})
+	response := helpers.APIResponse(http.StatusOK, "success", "User logged is successfully", gin.H{"user": userFormatter, "token": jwtToken})
 	ctx.JSON(http.StatusOK, response)
 }
 
