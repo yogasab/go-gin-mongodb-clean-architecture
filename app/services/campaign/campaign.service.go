@@ -24,7 +24,7 @@ func NewService(campaignRepository campaign.Repository) *campaignService {
 	}
 }
 
-func (s *campaignService) Create(input dto.CreateCampaignInput) (string, error) {
+func (s *campaignService) CreateCampaign(input dto.CreateCampaignInput) (string, error) {
 	campaign := entities.Campaign{}
 	campaign.ID = primitive.NewObjectID()
 	campaign.Title = input.Title
@@ -36,8 +36,7 @@ func (s *campaignService) Create(input dto.CreateCampaignInput) (string, error) 
 	campaign.GoalAmount = input.GoalAmount
 	campaign.CurrentAmount = 0
 
-	campaignID, _ := primitive.ObjectIDFromHex(campaign.ID.Hex())
-	campaignSlug := slug.Make(fmt.Sprintf("%s-%s", input.Title, campaignID))
+	campaignSlug := slug.Make(fmt.Sprintf("%s-%s", input.Title, campaign.ID.Hex()))
 	campaign.Slug = campaignSlug
 
 	campaign.CreatedAt = time.Now()
