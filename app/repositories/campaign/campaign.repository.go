@@ -1,4 +1,4 @@
-package user
+package campaign
 
 import (
 	"context"
@@ -8,19 +8,19 @@ import (
 	"time"
 )
 
-type CampaignRepository interface {
+type Repository interface {
 	Create(campaign entities.Campaign) (string, error)
 }
 
-type campaignRepository struct {
+type repository struct {
 	campaignCollection *mongo.Collection
 }
 
-func NewRepository(campaignCollection *mongo.Collection) *campaignRepository {
-	return &campaignRepository{campaignCollection: campaignCollection}
+func NewRepository(campaignCollection *mongo.Collection) *repository {
+	return &repository{campaignCollection: campaignCollection}
 }
 
-func (r *campaignRepository) Create(campaign entities.Campaign) (string, error) {
+func (r *repository) Create(campaign entities.Campaign) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
