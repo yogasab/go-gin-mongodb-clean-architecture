@@ -14,6 +14,7 @@ type Repository interface {
 	Create(campaign entities.Campaign) (string, error)
 	FindBySlug(slug string) (entities.Campaign, error)
 	FindByUser(User primitive.ObjectID) ([]entities.Campaign, error)
+	FindAll() ([]entities.Campaign, error)
 }
 
 type repository struct {
@@ -78,4 +79,26 @@ func (r *repository) FindByUser(User primitive.ObjectID) ([]entities.Campaign, e
 		campaigns = append(campaigns, campaign)
 	}
 	return campaigns, err
+}
+
+func (r *repository) FindAll() ([]entities.Campaign, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var campaigns []entities.Campaign
+	cursor, err := r.campaignCollection.Find(ctx, bson.M{})
+	if err != nil {
+		return campaigns, err
+	}
+
+	for cursor.Next(ctx) {
+		var campaign entities.Campaign
+		err := cursor.Decode(&campaign)
+		if err != nil {
+			return campaigns, err
+		}
+		campaigns = append(campaigns, campaign)
+	}
+
+	return campaigns, nil
 }
