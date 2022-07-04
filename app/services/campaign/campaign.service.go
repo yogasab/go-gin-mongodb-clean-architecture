@@ -13,6 +13,7 @@ import (
 
 type CampaignService interface {
 	CreateCampaign(input dto.CreateCampaignInput) (string, error)
+	GetCampaignsUser(UserID primitive.ObjectID) ([]entities.Campaign, error)
 }
 
 type campaignService struct {
@@ -52,4 +53,13 @@ func (s *campaignService) CreateCampaign(input dto.CreateCampaignInput) (string,
 	}
 
 	return newCampaign, nil
+}
+
+func (s *campaignService) GetCampaignsUser(UserID primitive.ObjectID) ([]entities.Campaign, error) {
+	campaignsUser, err := s.campaignRepository.FindByUser(UserID)
+	if err != nil {
+		return campaignsUser, err
+	}
+
+	return campaignsUser, nil
 }
