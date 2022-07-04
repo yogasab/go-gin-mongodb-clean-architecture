@@ -1,6 +1,10 @@
 package dto
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go-gin-mongodb-clean-architecture/app/entities"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
 
 type CheckUserAvailabilityInput struct {
 	Email string `json:"email" binding:"required,email"`
@@ -31,4 +35,40 @@ type UpdloadUserAvatarInput struct {
 type LoginUserInput struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
+}
+
+type UserFormatter struct {
+	ID         primitive.ObjectID `json:"id"`
+	Name       string             `json:"name"`
+	Email      string             `json:"email"`
+	Avatar     string             `json:"avatar"`
+	Role       string             `json:"role"`
+	Location   string             `json:"location"`
+	Occupation string             `json:"occupation"`
+	CreatedAt  time.Time          `json:"created_at"`
+}
+
+func FormatUser(user entities.User) UserFormatter {
+	userFormatter := UserFormatter{}
+	userFormatter.ID = user.ID
+	userFormatter.Name = user.Name
+	userFormatter.Email = user.Email
+	userFormatter.Avatar = user.AvatarFileName
+	userFormatter.Role = user.Role
+	userFormatter.Location = user.Location
+	userFormatter.Occupation = user.Occupation
+	userFormatter.CreatedAt = user.CreatedAt
+
+	return userFormatter
+}
+
+func FormatUsers(users []entities.User) []UserFormatter {
+	var usersFormatter []UserFormatter
+
+	for _, user := range users {
+		formatUser := FormatUser(user)
+		usersFormatter = append(usersFormatter, formatUser)
+	}
+
+	return usersFormatter
 }

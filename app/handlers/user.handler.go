@@ -29,7 +29,9 @@ func (h *userHandler) GetAllUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
-	response := helpers.APIResponse(http.StatusOK, "success", "New user created successfully", users)
+
+	usersFormatter := dto.FormatUsers(users)
+	response := helpers.APIResponse(http.StatusOK, "success", "Users fetched successfully", usersFormatter)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -47,7 +49,9 @@ func (h *userHandler) GetUserByID(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
-	response := helpers.APIResponse(http.StatusOK, "success", "User fetched successfully", user)
+
+	userFormatter := dto.FormatUser(user)
+	response := helpers.APIResponse(http.StatusOK, "success", "User fetched successfully", userFormatter)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -192,7 +196,8 @@ func (h *userHandler) LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.APIResponse(http.StatusOK, "success", "New user created successfully", jwtToken)
+	userFormatter := dto.FormatUser(loggedinUser)
+	response := helpers.APIResponse(http.StatusOK, "success", "New user created successfully", gin.H{"user": userFormatter, "token": jwtToken})
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -229,6 +234,7 @@ func (h *userHandler) RegisterUser(ctx *gin.Context) {
 func (h *userHandler) MyProfile(ctx *gin.Context) {
 	user := ctx.MustGet("user").(entities.User)
 
-	response := helpers.APIResponse(http.StatusOK, "success", "Profile fetched successfully", user)
+	userFormatter := dto.FormatUser(user)
+	response := helpers.APIResponse(http.StatusOK, "success", "Profile fetched successfully", userFormatter)
 	ctx.JSON(http.StatusOK, response)
 }
