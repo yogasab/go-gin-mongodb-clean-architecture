@@ -25,7 +25,7 @@ func NewUserHandler(userService user.Service, authService auth.Service) *userHan
 func (h *userHandler) GetAllUsers(ctx *gin.Context) {
 	users, err := h.userService.GetAllUsers()
 	if err != nil {
-		response := helpers.APIResponse(http.StatusInternalServerError, "success", "Failed to process request", users)
+		response := helpers.APIResponse(http.StatusInternalServerError, "success", "Failed to process request", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
@@ -40,7 +40,7 @@ func (h *userHandler) GetUserByID(ctx *gin.Context) {
 
 	user, err := h.userService.GetUserByID(ID)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to process request", err.Error())
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to process request", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -60,7 +60,7 @@ func (h *userHandler) CreateUser(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", err.Error())
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
@@ -78,14 +78,14 @@ func (h *userHandler) CreateUser(ctx *gin.Context) {
 	input.ID = ID
 	jwtToken, err := h.authService.GenerateToken(ID.Hex())
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to authenticate user", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to authenticate user", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	_, err = h.userService.CreateUser(input, jwtToken)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to create new user", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to create new user", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -98,7 +98,7 @@ func (h *userHandler) DeleteUserByID(ctx *gin.Context) {
 
 	isDeleted, err := h.userService.DeleteUserByID(ID)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusNotFound, "failed", err.Error(), err)
+		response := helpers.APIResponse(http.StatusNotFound, "failed", err.Error(), gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
@@ -111,7 +111,7 @@ func (h *userHandler) UpdateUserByID(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", err)
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
@@ -125,7 +125,7 @@ func (h *userHandler) UpdateUserByID(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, response)
 			return
 		}
-		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to update user", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to update user", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -139,7 +139,7 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 
 	err := ctx.ShouldBind(&input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", err)
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
@@ -148,7 +148,7 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 	input.ID = user.ID.Hex()
 	file, err := ctx.FormFile("avatar")
 	if err != nil {
-		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to upload image", err)
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to upload image", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
@@ -157,13 +157,13 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 
 	isUploaded, err := h.userService.UploadUserAvatar(input, fileLocation)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to upload image", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to upload image", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	if err = ctx.SaveUploadedFile(file, fileLocation); err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to upload image", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to upload image", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -177,21 +177,21 @@ func (h *userHandler) LoginUser(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", err)
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "error", "Failed to process request", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
 	loggedinUser, err := h.authService.LoginUser(input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to authenticate user", err.Error())
+		response := helpers.APIResponse(http.StatusBadRequest, "error", "Failed to authenticate user", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	jwtToken, err := h.authService.GenerateToken(loggedinUser.ID.Hex())
 	if err != nil {
-		response := helpers.APIResponse(http.StatusUnauthorized, "failed", "Failed to authenticate user", err)
+		response := helpers.APIResponse(http.StatusUnauthorized, "failed", "Failed to authenticate user", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusUnauthorized, response)
 		return
 	}
@@ -206,7 +206,7 @@ func (h *userHandler) RegisterUser(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", err)
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
@@ -215,14 +215,14 @@ func (h *userHandler) RegisterUser(ctx *gin.Context) {
 	input.ID = ID
 	jwtToken, err := h.authService.GenerateToken(ID.Hex())
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to process request", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to process request", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	_, err = h.authService.RegisterUser(input, jwtToken)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to authenticate user", err)
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to authenticate user", gin.H{"error": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
