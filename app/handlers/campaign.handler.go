@@ -21,7 +21,7 @@ func (h *campaignHandler) CreateCampaign(ctx *gin.Context) {
 	var input dto.CreateCampaignInput
 	err := ctx.ShouldBindJSON(&input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", err.Error())
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", gin.H{"errors": err.Error()})
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
@@ -31,11 +31,25 @@ func (h *campaignHandler) CreateCampaign(ctx *gin.Context) {
 
 	newCampaign, err := h.campaignService.CreateCampaign(input)
 	if err != nil {
-		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to create campaign", err.Error())
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to create campaign", gin.H{"errors": err.Error()})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	response := helpers.APIResponse(http.StatusCreated, "success", "Campaign created successfully", newCampaign)
 	ctx.JSON(http.StatusCreated, response)
+}
+
+func (h *campaignHandler) GetCampaigns(ctx *gin.Context) {
+	UserID := ctx.Query("user_id")
+
+	campaigns, err := h.campaignService.GetCampaigns(UserID)
+	if err != nil {
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to get campaigns", gin.H{"errors": err.Error()})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helpers.APIResponse(http.StatusOK, "success", "Campaigns fetched successfully", campaigns)
+	ctx.JSON(http.StatusOK, response)
 }

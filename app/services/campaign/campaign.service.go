@@ -76,6 +76,9 @@ func (s *campaignService) GetCampaigns(UserID string) ([]entities.Campaign, erro
 
 	objID, _ := primitive.ObjectIDFromHex(UserID)
 	campaigns, err := s.campaignRepository.FindByUser(objID)
+	if len(campaigns) == 0 {
+		return campaigns, errors.New("Campaign with correspond user is not found")
+	}
 	if err != nil {
 		return campaigns, err
 	}

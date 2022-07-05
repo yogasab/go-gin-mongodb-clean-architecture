@@ -48,5 +48,6 @@ func InitializeRoutes(router *gin.Engine) {
 	campaignAPIRouter := router.Group("/api/v1/campaigns")
 	{
 		campaignAPIRouter.POST("/", middlewares.AuthMiddleware(authService, userService), campaignHandler.CreateCampaign)
+		campaignAPIRouter.GET("/", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaigns)
 	}
 }
