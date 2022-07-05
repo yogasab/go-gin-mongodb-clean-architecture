@@ -15,6 +15,7 @@ type CampaignService interface {
 	CreateCampaign(input dto.CreateCampaignInput) (string, error)
 	GetCampaignsUser(UserID primitive.ObjectID) ([]entities.Campaign, error)
 	GetCampaigns(UserID string) ([]entities.Campaign, error)
+	GetCampaign(ID string) (entities.Campaign, error)
 }
 
 type campaignService struct {
@@ -84,4 +85,18 @@ func (s *campaignService) GetCampaigns(UserID string) ([]entities.Campaign, erro
 	}
 
 	return campaigns, nil
+}
+
+func (s *campaignService) GetCampaign(ID string) (entities.Campaign, error) {
+	objID, _ := primitive.ObjectIDFromHex(ID)
+
+	campaign, err := s.campaignRepository.FindByID(objID)
+	if campaign.Title == "" {
+		return campaign, errors.New("Campaign with correspond ID is not found")
+	}
+	if err != nil {
+		return campaign, err
+	}
+
+	return campaign, nil
 }
