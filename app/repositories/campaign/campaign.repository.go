@@ -15,6 +15,7 @@ type Repository interface {
 	FindBySlug(slug string) (entities.Campaign, error)
 	FindByUser(User primitive.ObjectID) ([]entities.Campaign, error)
 	FindAll() ([]entities.Campaign, error)
+	FindByID(ID primitive.ObjectID) (entities.Campaign, error)
 }
 
 type repository struct {
@@ -101,4 +102,19 @@ func (r *repository) FindAll() ([]entities.Campaign, error) {
 	}
 
 	return campaigns, nil
+}
+
+func (r *repository) FindByID(ID primitive.ObjectID) (entities.Campaign, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var campaign entities.Campaign
+
+	filter := bson.M{"_id": ID}
+	err := r.campaignCollection.FindOne(ctx, filter).Decode(&campaign)
+	if err != nil {
+		return campaign, err
+	}
+
+	return campaign, nil
 }
