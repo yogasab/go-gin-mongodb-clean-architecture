@@ -87,14 +87,22 @@ func (r *repository) FindAll() ([]entities.Campaign, error) {
 	defer cancel()
 
 	var campaigns []entities.Campaign
-	cursor, err := r.campaignCollection.Find(ctx, bson.M{})
+	filter := bson.M{}
+	aggSearch := bson.M{"$match": filter}
+	aggPopulate := bson.M{"$lookup": bson.M{
+		"from":         "users",
+		"localField":   "user",
+		"foreignField": "_id",
+		"as":           "users",
+	}}
+	cursor, err := r.campaignCollection.Aggregate(ctx, []bson.M{aggSearch, aggPopulate})
 	if err != nil {
 		return campaigns, err
 	}
 
 	for cursor.Next(ctx) {
 		var campaign entities.Campaign
-		err := cursor.Decode(&campaign)
+		err = cursor.Decode(&campaign)
 		if err != nil {
 			return campaigns, err
 		}

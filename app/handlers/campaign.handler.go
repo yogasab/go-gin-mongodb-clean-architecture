@@ -50,7 +50,8 @@ func (h *campaignHandler) GetCampaigns(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.APIResponse(http.StatusOK, "success", "Campaigns fetched successfully", campaigns)
+	campaignsFormatter := dto.FormatCampaigns(campaigns)
+	response := helpers.APIResponse(http.StatusOK, "success", "Campaigns fetched successfully", gin.H{"campaigns": campaignsFormatter})
 	ctx.JSON(http.StatusOK, response)
 }
 
