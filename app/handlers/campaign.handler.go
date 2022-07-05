@@ -53,3 +53,17 @@ func (h *campaignHandler) GetCampaigns(ctx *gin.Context) {
 	response := helpers.APIResponse(http.StatusOK, "success", "Campaigns fetched successfully", campaigns)
 	ctx.JSON(http.StatusOK, response)
 }
+
+func (h *campaignHandler) GetCampaign(ctx *gin.Context) {
+	ID := ctx.Param("id")
+
+	campaign, err := h.campaignService.GetCampaign(ID)
+	if err != nil {
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to get campaign", gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helpers.APIResponse(http.StatusOK, "success", "Campaign fetched successfully", campaign)
+	ctx.JSON(http.StatusOK, response)
+}
