@@ -105,6 +105,11 @@ func (s *campaignService) GetCampaign(ID string) (entities.Campaign, error) {
 func (s *campaignService) UpdateCampaignByID(input dto.UpdateCampaignInput) (bool, error) {
 	isUpdated := false
 	campaign, err := s.GetCampaign(input.ID)
+	campaignCreatorID := campaign.User.Hex()
+	userID := input.User.ID.Hex()
+	if campaignCreatorID != userID {
+		return isUpdated, errors.New("You are not the campaign creator")
+	}
 	if campaign.Title == "" {
 		return isUpdated, errors.New("Campaign with correspond ID is not found")
 	}
