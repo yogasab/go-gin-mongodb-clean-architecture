@@ -130,6 +130,7 @@ func (h *campaignHandler) GetCampaignBySlug(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.APIResponse(http.StatusOK, "success", "Campaign fetched successfully", gin.H{"campaign": campaign})
+	campaignFormatter := dto.FormatCampaign(campaign)
+	response := helpers.APIResponse(http.StatusOK, "success", "Campaign fetched successfully", gin.H{"campaign": campaignFormatter})
 	ctx.JSON(http.StatusOK, response)
 }

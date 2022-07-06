@@ -46,12 +46,27 @@ func (r *repository) FindBySlug(slug string) (entities.Campaign, error) {
 	defer cancel()
 
 	var campaign entities.Campaign
+
 	filter := bson.M{"slug": slug}
-	err := r.campaignCollection.FindOne(ctx, filter).Decode(&campaign)
+	aggSearch := bson.M{"$match": filter}
+	aggPopulate := bson.M{"$lookup": bson.M{
+		"from":         "users",
+		"localField":   "user",
+		"foreignField": "_id",
+		"as":           "users",
+	}}
+	cursor, err := r.campaignCollection.Aggregate(ctx, []bson.M{aggSearch, aggPopulate})
 	if err != nil {
 		return campaign, err
 	}
 
+	for cursor.Next(ctx) {
+		err := cursor.Decode(&campaign)
+		if err != nil {
+			return campaign, err
+		}
+		return campaign, nil
+	}
 	return campaign, nil
 }
 
