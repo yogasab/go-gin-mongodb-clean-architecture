@@ -125,6 +125,7 @@ func (s *campaignService) UpdateCampaignByID(input dto.UpdateCampaignInput) (boo
 	campaign.GoalAmount = input.GoalAmount
 	campaignSlug := slug.Make(fmt.Sprintf("%s-%s", input.Title, input.User.ID.Hex()))
 	campaign.Slug = campaignSlug
+	campaign.UpdatedAt = time.Now()
 
 	objID, _ := primitive.ObjectIDFromHex(input.ID)
 	updatedCampaign, err := s.campaignRepository.UpdateByID(objID, campaign)
@@ -160,6 +161,7 @@ func (s *campaignService) UpdateCampaignBySlug(input dto.UpdateCampaignBySlugInp
 	campaign.GoalAmount = input.GoalAmount
 	campaignSlug := slug.Make(fmt.Sprintf("%s-%s", input.Title, input.User.ID.Hex()))
 	campaign.Slug = campaignSlug
+	campaign.UpdatedAt = time.Now()
 
 	updatedCampaign, err := s.campaignRepository.UpdateBySlug(input.Slug, campaign)
 	if err != nil {
