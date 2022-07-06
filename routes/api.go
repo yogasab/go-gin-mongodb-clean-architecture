@@ -10,7 +10,6 @@ import (
 	campaignServ "go-gin-mongodb-clean-architecture/app/services/campaign"
 	userServ "go-gin-mongodb-clean-architecture/app/services/user"
 	"go-gin-mongodb-clean-architecture/db"
-	"log"
 )
 
 func InitializeRoutes(router *gin.Engine) {
@@ -28,12 +27,6 @@ func InitializeRoutes(router *gin.Engine) {
 
 	userAPIHandler := handlers.NewUserHandler(userService, authService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
-
-	campaign, err := campaignService.GetCampaignBySlug("bantu-israel-62bd416dd08bdf54fe7ed511")
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	log.Fatalln(campaign)
 
 	userAPIRouter := router.Group("/api/v1/users")
 	{
@@ -59,5 +52,6 @@ func InitializeRoutes(router *gin.Engine) {
 		campaignAPIRouter.GET("/:id", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaign)
 		campaignAPIRouter.PUT("/:id", middlewares.AuthMiddleware(authService, userService), campaignHandler.UpdateCampaignByID)
 		campaignAPIRouter.PUT("/details/:slug", middlewares.AuthMiddleware(authService, userService), campaignHandler.UpdateCampaignBySlug)
+		campaignAPIRouter.GET("/details/:slug", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaignBySlug)
 	}
 }

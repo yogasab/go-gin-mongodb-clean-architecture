@@ -119,3 +119,17 @@ func (h *campaignHandler) UpdateCampaignBySlug(ctx *gin.Context) {
 	response := helpers.APIResponse(http.StatusOK, "success", "Campaign updated successfully", gin.H{"is_updated": updatedCampaign})
 	ctx.JSON(http.StatusOK, response)
 }
+
+func (h *campaignHandler) GetCampaignBySlug(ctx *gin.Context) {
+	slug := ctx.Param("slug")
+
+	campaign, err := h.campaignService.GetCampaignBySlug(slug)
+	if err != nil {
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to get campaign", gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helpers.APIResponse(http.StatusOK, "success", "Campaign fetched successfully", gin.H{"campaign": campaign})
+	ctx.JSON(http.StatusOK, response)
+}
