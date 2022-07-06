@@ -17,6 +17,7 @@ type CampaignService interface {
 	GetCampaigns(UserID string) ([]entities.Campaign, error)
 	GetCampaign(ID string) (entities.Campaign, error)
 	UpdateCampaignByID(input dto.UpdateCampaignInput) (bool, error)
+	UpdateCampaignBySlug(input dto.UpdateCampaignBySlugInput) (bool, error)
 }
 
 type campaignService struct {
@@ -127,6 +128,40 @@ func (s *campaignService) UpdateCampaignByID(input dto.UpdateCampaignInput) (boo
 
 	objID, _ := primitive.ObjectIDFromHex(input.ID)
 	updatedCampaign, err := s.campaignRepository.UpdateByID(objID, campaign)
+	if err != nil {
+		return isUpdated, err
+	}
+
+	if updatedCampaign >= 0 {
+		isUpdated = true
+	}
+	return isUpdated, nil
+}
+
+func (s *campaignService) UpdateCampaignBySlug(input dto.UpdateCampaignBySlugInput) (bool, error) {
+	isUpdated := false
+	campaign, err := s.campaignRepository.FindBySlug(input.Slug)
+	campaignCreatorID := campaign.User.Hex()
+	userID := input.User.ID.Hex()
+	if campaignCreatorID != userID {
+		return isUpdated, errors.New("You are not the campaign creator")
+	}
+	if campaign.Title == "" {
+		return isUpdated, errors.New("Campaign with correspond ID is not found")
+	}
+	if err != nil {
+		return isUpdated, err
+	}
+
+	campaign.Title = input.Title
+	campaign.ShortDescription = input.ShortDescription
+	campaign.Description = input.Description
+	campaign.Perks = input.Perks
+	campaign.GoalAmount = input.GoalAmount
+	campaignSlug := slug.Make(fmt.Sprintf("%s-%s", input.Title, input.User.ID.Hex()))
+	campaign.Slug = campaignSlug
+
+	updatedCampaign, err := s.campaignRepository.UpdateBySlug(input.Slug, campaign)
 	if err != nil {
 		return isUpdated, err
 	}

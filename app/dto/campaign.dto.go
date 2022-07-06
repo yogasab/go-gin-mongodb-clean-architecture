@@ -25,6 +25,16 @@ type UpdateCampaignInput struct {
 	User             entities.User
 }
 
+type UpdateCampaignBySlugInput struct {
+	Slug             string
+	Title            string `json:"title" binding:"required"`
+	ShortDescription string `json:"short_description" binding:"required"`
+	Description      string `json:"description" binding:"required"`
+	Perks            string `json:"perks" binding:"required"`
+	GoalAmount       int    `json:"goal_amount" binding:"required"`
+	User             entities.User
+}
+
 type CampaignFormatter struct {
 	ID               primitive.ObjectID `json:"id"`
 	User             string             `json:"user"`
