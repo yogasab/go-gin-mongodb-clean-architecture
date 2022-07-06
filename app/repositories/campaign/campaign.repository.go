@@ -17,6 +17,7 @@ type Repository interface {
 	FindAll() ([]entities.Campaign, error)
 	FindByID(ID primitive.ObjectID) (entities.Campaign, error)
 	UpdateByID(ID primitive.ObjectID, campaign entities.Campaign) (int, error)
+	UpdateBySlug(slug string, campaign entities.Campaign) (int, error)
 }
 
 type repository struct {
@@ -147,6 +148,33 @@ func (r *repository) UpdateByID(ID primitive.ObjectID, campaign entities.Campaig
 	defer cancel()
 
 	filter := bson.M{"_id": ID}
+	update := bson.M{
+		"$set": bson.M{
+			"title":             campaign.Title,
+			"short_description": campaign.ShortDescription,
+			"description":       campaign.Description,
+			"perks":             campaign.Perks,
+			"backer_count":      campaign.BackerCount,
+			"goal_amount":       campaign.GoalAmount,
+			"current_amount":    campaign.CurrentAmount,
+			"slug":              campaign.Slug,
+			"updated_at":        campaign.UpdatedAt,
+			"created_at":        campaign.CreatedAt,
+		},
+	}
+	updateResult, err := r.campaignCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(updateResult.ModifiedCount), nil
+}
+
+func (r *repository) UpdateBySlug(slug string, campaign entities.Campaign) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	filter := bson.M{"slug": slug}
 	update := bson.M{
 		"$set": bson.M{
 			"title":             campaign.Title,
