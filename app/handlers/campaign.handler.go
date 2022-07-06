@@ -69,3 +69,28 @@ func (h *campaignHandler) GetCampaign(ctx *gin.Context) {
 	response := helpers.APIResponse(http.StatusOK, "success", "Campaign fetched successfully", campaignFormatter)
 	ctx.JSON(http.StatusOK, response)
 }
+
+func (h *campaignHandler) UpdateCampaignByID(ctx *gin.Context) {
+	var input dto.UpdateCampaignInput
+	err := ctx.ShouldBindJSON(&input)
+	if err != nil {
+		response := helpers.APIResponse(http.StatusUnprocessableEntity, "failed", "Failed to process request", gin.H{"errors": err.Error()})
+		ctx.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	ID := ctx.Param("id")
+	user := ctx.MustGet("user").(entities.User)
+	input.ID = ID
+	input.User = user
+
+	updatedCampaign, err := h.campaignService.UpdateCampaignByID(input)
+	if err != nil {
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to update campaign", gin.H{"errors": err.Error()})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helpers.APIResponse(http.StatusOK, "success", "Campaign updated successfully", gin.H{"is_updated": updatedCampaign})
+	ctx.JSON(http.StatusOK, response)
+}

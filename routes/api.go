@@ -50,5 +50,6 @@ func InitializeRoutes(router *gin.Engine) {
 		campaignAPIRouter.POST("/", middlewares.AuthMiddleware(authService, userService), campaignHandler.CreateCampaign)
 		campaignAPIRouter.GET("/", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaigns)
 		campaignAPIRouter.GET("/:id", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaign)
+		campaignAPIRouter.PUT("/:id", middlewares.AuthMiddleware(authService, userService), campaignHandler.UpdateCampaignByID)
 	}
 }
