@@ -18,6 +18,7 @@ type CampaignService interface {
 	GetCampaign(ID string) (entities.Campaign, error)
 	UpdateCampaignByID(input dto.UpdateCampaignInput) (bool, error)
 	UpdateCampaignBySlug(input dto.UpdateCampaignBySlugInput) (bool, error)
+	GetCampaignBySlug(slug string) (entities.Campaign, error)
 }
 
 type campaignService struct {
@@ -172,4 +173,16 @@ func (s *campaignService) UpdateCampaignBySlug(input dto.UpdateCampaignBySlugInp
 		isUpdated = true
 	}
 	return isUpdated, nil
+}
+
+func (s *campaignService) GetCampaignBySlug(slug string) (entities.Campaign, error) {
+	campaign, err := s.campaignRepository.FindBySlug(slug)
+	if campaign.Title == "" {
+		return campaign, errors.New("Campaign with not found")
+	}
+	if err != nil {
+		return campaign, err
+	}
+
+	return campaign, nil
 }
