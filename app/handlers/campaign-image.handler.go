@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-gin-mongodb-clean-architecture/app/dto"
+	"go-gin-mongodb-clean-architecture/app/entities"
 	campaign_image "go-gin-mongodb-clean-architecture/app/services/campaign-image"
 	"go-gin-mongodb-clean-architecture/helpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -36,6 +37,9 @@ func (h *campaignImageHandler) CreateCampaignImage(ctx *gin.Context) {
 
 	campaignImageID := primitive.NewObjectID()
 	input.ID = campaignImageID
+
+	user := ctx.MustGet("user").(entities.User)
+	input.User = user
 
 	fileName := fmt.Sprintf("assets/images/campaign/%s-%s", input.ID.Hex(), file.Filename)
 	newCampaignImage, err := h.campaignImageService.CreateCampaignImage(input, fileName)

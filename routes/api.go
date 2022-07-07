@@ -29,7 +29,7 @@ func InitializeRoutes(router *gin.Engine) {
 	// Campaign image
 	campaignImageCollection := db.GetCollection(db.DB, "campaign-images")
 	campaignImageRepository := campaignImageRepo.NewRepository(campaignImageCollection)
-	campaignImageService := campaignImageServ.NewService(campaignImageRepository)
+	campaignImageService := campaignImageServ.NewService(campaignImageRepository, campaignRepository)
 
 	userAPIHandler := handlers.NewUserHandler(userService, authService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
