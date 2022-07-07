@@ -30,9 +30,10 @@ func InitializeRoutes(router *gin.Engine) {
 	campaignImageCollection := db.GetCollection(db.DB, "campaign-images")
 	campaignImageRepository := campaignImageRepo.NewRepository(campaignImageCollection)
 	campaignImageService := campaignImageServ.NewService(campaignImageRepository)
-	
+
 	userAPIHandler := handlers.NewUserHandler(userService, authService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
+	campaignImageHandler := handlers.NewCampaignImageHandler(campaignImageService)
 
 	userAPIRouter := router.Group("/api/v1/users")
 	{
@@ -57,6 +58,7 @@ func InitializeRoutes(router *gin.Engine) {
 		campaignAPIRouter.GET("/", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaigns)
 		campaignAPIRouter.GET("/:id", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaign)
 		campaignAPIRouter.PUT("/:id", middlewares.AuthMiddleware(authService, userService), campaignHandler.UpdateCampaignByID)
+		campaignAPIRouter.POST("/campaign-images", middlewares.AuthMiddleware(authService, userService), campaignImageHandler.CreateCampaignImage)
 		campaignAPIRouter.PUT("/details/:slug", middlewares.AuthMiddleware(authService, userService), campaignHandler.UpdateCampaignBySlug)
 		campaignAPIRouter.GET("/details/:slug", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaignBySlug)
 	}

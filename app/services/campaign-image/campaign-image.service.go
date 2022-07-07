@@ -23,7 +23,7 @@ func NewService(campaignImageRepository campaignImageRepo.Repository) *service {
 func (s *service) CreateCampaignImage(input dto.CreateCampaignImageInput, fileLocation string) (string, error) {
 	campaignImage := entities.CampaignImage{}
 	objID, _ := primitive.ObjectIDFromHex(input.Campaign)
-	campaignImage.ID = primitive.NewObjectID()
+	campaignImage.ID = input.ID
 	campaignImage.Campaign = objID
 	campaignImage.Filename = fileLocation
 	campaignImage.IsPrimary = input.IsPrimary
