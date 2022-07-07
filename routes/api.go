@@ -9,6 +9,7 @@ import (
 	userRepo "go-gin-mongodb-clean-architecture/app/repositories/user"
 	"go-gin-mongodb-clean-architecture/app/services/auth"
 	campaignServ "go-gin-mongodb-clean-architecture/app/services/campaign"
+	campaignImageServ "go-gin-mongodb-clean-architecture/app/services/campaign-image"
 	userServ "go-gin-mongodb-clean-architecture/app/services/user"
 	"go-gin-mongodb-clean-architecture/db"
 )
@@ -28,7 +29,8 @@ func InitializeRoutes(router *gin.Engine) {
 	// Campaign image
 	campaignImageCollection := db.GetCollection(db.DB, "campaign-images")
 	campaignImageRepository := campaignImageRepo.NewRepository(campaignImageCollection)
-
+	campaignImageService := campaignImageServ.NewService(campaignImageRepository)
+	
 	userAPIHandler := handlers.NewUserHandler(userService, authService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
 
