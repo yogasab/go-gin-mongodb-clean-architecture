@@ -43,9 +43,15 @@ func (s *service) CreateCampaignImage(input dto.CreateCampaignImageInput, fileLo
 	campaignImage.ID = input.ID
 	campaignImage.Campaign = objID
 	campaignImage.Filename = fileLocation
-	campaignImage.IsPrimary = input.IsPrimary
 	campaignImage.CreatedAt = time.Now()
 	campaignImage.UpdatedAt = time.Now()
+
+	if input.IsPrimary {
+		if _, err = s.campaignImageRepository.MarkAllImagesAsNonPrimary(objID); err != nil {
+			return "", err
+		}
+	}
+	campaignImage.IsPrimary = input.IsPrimary
 
 	newCampaignImage, err := s.campaignImageRepository.Create(campaignImage)
 	if err != nil {
