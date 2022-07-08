@@ -11,6 +11,6 @@ func main() {
 
 	routes.InitializeRoutes(router)
 
-	router.Static("/images", "./assets/images")
+	router.Static("/assets/images", "./assets/images")
 	router.Run(":5000")
 }

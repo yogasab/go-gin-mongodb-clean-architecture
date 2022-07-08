@@ -153,7 +153,7 @@ func (h *userHandler) UploadUserAvatar(ctx *gin.Context) {
 		return
 	}
 
-	fileLocation := fmt.Sprintf("assets/images/%s-%s", input.ID, file.Filename)
+	fileLocation := fmt.Sprintf("assets/images/user/%s-%s", input.ID, file.Filename)
 
 	isUploaded, err := h.userService.UploadUserAvatar(input, fileLocation)
 	if err != nil {
