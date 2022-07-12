@@ -1,22 +1,24 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-gin-mongodb-clean-architecture/app/handlers"
 	"go-gin-mongodb-clean-architecture/app/middlewares"
 	campaignRepo "go-gin-mongodb-clean-architecture/app/repositories/campaign"
 	campaignImageRepo "go-gin-mongodb-clean-architecture/app/repositories/campaign-image"
+	transactionRepo "go-gin-mongodb-clean-architecture/app/repositories/transaction"
 	userRepo "go-gin-mongodb-clean-architecture/app/repositories/user"
 	"go-gin-mongodb-clean-architecture/app/services/auth"
 	campaignServ "go-gin-mongodb-clean-architecture/app/services/campaign"
 	campaignImageServ "go-gin-mongodb-clean-architecture/app/services/campaign-image"
 	userServ "go-gin-mongodb-clean-architecture/app/services/user"
 	"go-gin-mongodb-clean-architecture/db"
+
+	"github.com/gin-gonic/gin"
 )
 
 func InitializeRoutes(router *gin.Engine) {
 
-	// user
+	// User
 	userCollection := db.GetCollection(db.DB, "users")
 	userRepository := userRepo.NewUserRepository(userCollection)
 	userService := userServ.NewService(userRepository)
@@ -26,10 +28,13 @@ func InitializeRoutes(router *gin.Engine) {
 	campaignCollection := db.GetCollection(db.DB, "campaigns")
 	campaignRepository := campaignRepo.NewRepository(campaignCollection)
 	campaignService := campaignServ.NewService(campaignRepository)
-	// Campaign image
+	// Campaign Image
 	campaignImageCollection := db.GetCollection(db.DB, "campaign-images")
 	campaignImageRepository := campaignImageRepo.NewRepository(campaignImageCollection)
 	campaignImageService := campaignImageServ.NewService(campaignImageRepository, campaignRepository)
+	// Transaction
+	transactionCollection := db.GetCollection(db.DB, "transactions")
+	transactionRepository := transactionRepo.NewRepository(transactionCollection)
 
 	userAPIHandler := handlers.NewUserHandler(userService, authService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
