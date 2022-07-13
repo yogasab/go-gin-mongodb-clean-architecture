@@ -41,6 +41,7 @@ func InitializeRoutes(router *gin.Engine) {
 	userAPIHandler := handlers.NewUserHandler(userService, authService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
 	campaignImageHandler := handlers.NewCampaignImageHandler(campaignImageService)
+	transactionHandler := handlers.NewTranscactionHandler(transactionService)
 
 	userAPIRouter := router.Group("/api/v1/users")
 	{
@@ -68,5 +69,10 @@ func InitializeRoutes(router *gin.Engine) {
 		campaignAPIRouter.POST("/campaign-images", middlewares.AuthMiddleware(authService, userService), campaignImageHandler.CreateCampaignImage)
 		campaignAPIRouter.PUT("/details/:slug", middlewares.AuthMiddleware(authService, userService), campaignHandler.UpdateCampaignBySlug)
 		campaignAPIRouter.GET("/details/:slug", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaignBySlug)
+	}
+
+	transactionAPIRouter := router.Group("/api/v1/transactions")
+	{
+		transactionAPIRouter.POST("/", middlewares.AuthMiddleware(authService, userService), transactionHandler.CreateTransaction)
 	}
 }
