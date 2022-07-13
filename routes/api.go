@@ -10,6 +10,7 @@ import (
 	"go-gin-mongodb-clean-architecture/app/services/auth"
 	campaignServ "go-gin-mongodb-clean-architecture/app/services/campaign"
 	campaignImageServ "go-gin-mongodb-clean-architecture/app/services/campaign-image"
+	transactionServ "go-gin-mongodb-clean-architecture/app/services/transaction"
 	userServ "go-gin-mongodb-clean-architecture/app/services/user"
 	"go-gin-mongodb-clean-architecture/db"
 
@@ -35,6 +36,7 @@ func InitializeRoutes(router *gin.Engine) {
 	// Transaction
 	transactionCollection := db.GetCollection(db.DB, "transactions")
 	transactionRepository := transactionRepo.NewRepository(transactionCollection)
+	transactionService := transactionServ.NewService(transactionRepository)
 
 	userAPIHandler := handlers.NewUserHandler(userService, authService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
