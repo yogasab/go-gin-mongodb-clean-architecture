@@ -90,7 +90,7 @@ func (s *service) CreateUser(input dto.CreateNewUserInput, jwtToken string) (str
 	user.Location = input.Location
 	user.Occupation = input.Occupation
 	user.Token = jwtToken
-	user.Role = "user"
+	user.Role = input.Role
 	user.AvatarFileName = ""
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()

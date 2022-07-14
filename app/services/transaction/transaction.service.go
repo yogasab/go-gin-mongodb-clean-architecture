@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"errors"
 	"fmt"
 	"go-gin-mongodb-clean-architecture/app/dto"
 	"go-gin-mongodb-clean-architecture/app/entities"
@@ -12,7 +13,7 @@ import (
 
 type Service interface {
 	CreateTransaction(input dto.CreateTransactionInput) (string, error)
-	GetTransactions() ([]entities.Transaction, error)
+	GetTransactions(input dto.GetTransactionsInput) ([]entities.Transaction, error)
 }
 
 type service struct {
@@ -46,7 +47,13 @@ func (s *service) CreateTransaction(input dto.CreateTransactionInput) (string, e
 	return newTransaction, nil
 }
 
-func (s *service) GetTransactions() ([]entities.Transaction, error) {
+func (s *service) GetTransactions(input dto.GetTransactionsInput) ([]entities.Transaction, error) {
+	var transactions []entities.Transaction
+
+	if input.User.Role != "admin" {
+		return transactions, errors.New("You are not authorize to perform this route")
+	}
+
 	transactions, err := s.transactionRepository.FindAll()
 	if err != nil {
 		return transactions, err

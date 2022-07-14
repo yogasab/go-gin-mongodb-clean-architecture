@@ -2,8 +2,9 @@ package dto
 
 import (
 	"go-gin-mongodb-clean-architecture/app/entities"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CheckUserAvailabilityInput struct {
@@ -16,6 +17,7 @@ type CreateNewUserInput struct {
 	Email      string `json:"email" binding:"required,email"`
 	Password   string `json:"password" binding:"required"`
 	Location   string `json:"location" binding:"required"`
+	Role       string `json:"role" binding:"required"`
 	Occupation string `json:"occupation" binding:"required"`
 }
 

@@ -74,5 +74,7 @@ func InitializeRoutes(router *gin.Engine) {
 	transactionAPIRouter := router.Group("/api/v1/transactions")
 	{
 		transactionAPIRouter.POST("/", middlewares.AuthMiddleware(authService, userService), transactionHandler.CreateTransaction)
+		transactionAPIRouter.GET("/", middlewares.AuthMiddleware(authService, userService), transactionHandler.GetTransactions)
+
 	}
 }

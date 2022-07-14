@@ -7,3 +7,7 @@ type CreateTransactionInput struct {
 	Amount   int    `json:"amount"`
 	User     entities.User
 }
+
+type GetTransactionsInput struct {
+	User entities.User
+}

@@ -41,3 +41,20 @@ func (h *transactionHandler) CreateTransaction(ctx *gin.Context) {
 	response := helpers.APIResponse(http.StatusCreated, "success", "New transaction created successfully", newTransactionID)
 	ctx.JSON(http.StatusCreated, response)
 }
+
+func (h *transactionHandler) GetTransactions(ctx *gin.Context) {
+	var input dto.GetTransactionsInput
+
+	user := ctx.MustGet("user").(entities.User)
+	input.User = user
+
+	transactions, err := h.transactionService.GetTransactions(input)
+	if err != nil {
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to get transactions", gin.H{"errors": err.Error()})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helpers.APIResponse(http.StatusOK, "success", "Transactions fetched successfully", gin.H{"transactions": transactions})
+	ctx.JSON(http.StatusOK, response)
+}
