@@ -30,3 +30,16 @@ func TestTransactionService(t *testing.T) {
 	assert.NotNil(t, transactions)
 	assert.NoError(t, err)
 }
+
+func TestGetTransaction(t *testing.T) {
+	objID, _ := primitive.ObjectIDFromHex("62bd416dd08bdf54fe7ed518")
+
+	transaction, err := transactionService.GetTransaction(dto.GetTransactionInput{ID: "62ce383116ab6dcc787cc583", User: entities.User{ID: objID}})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotNil(t, transaction)
+	assert.NoError(t, err)
+}

@@ -14,6 +14,7 @@ import (
 type Service interface {
 	CreateTransaction(input dto.CreateTransactionInput) (string, error)
 	GetTransactions(input dto.GetTransactionsInput) ([]entities.Transaction, error)
+	GetTransaction(input dto.GetTransactionInput) (entities.Transaction, error)
 }
 
 type service struct {
@@ -60,4 +61,19 @@ func (s *service) GetTransactions(input dto.GetTransactionsInput) ([]entities.Tr
 	}
 
 	return transactions, nil
+}
+
+func (s *service) GetTransaction(input dto.GetTransactionInput) (entities.Transaction, error) {
+	objID, _ := primitive.ObjectIDFromHex(input.ID)
+
+	transaction, err := s.transactionRepository.FindByID(objID)
+	if err != nil {
+		return transaction, err
+	}
+
+	if input.User.ID != transaction.User {
+		return transaction, errors.New("You are not authorize to perform this route")
+	}
+
+	return transaction, nil
 }

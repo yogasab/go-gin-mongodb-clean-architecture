@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Repository interface {
 	Create(transaction entities.Transaction) (string, error)
 	FindAll() ([]entities.Transaction, error)
+	FindByID(ID primitive.ObjectID) (entities.Transaction, error)
 }
 
 type repository struct {
@@ -56,4 +58,18 @@ func (r *repository) FindAll() ([]entities.Transaction, error) {
 	}
 
 	return transactions, nil
+}
+
+func (r *repository) FindByID(ID primitive.ObjectID) (entities.Transaction, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var transaction entities.Transaction
+	filter := bson.M{"_id": ID}
+	err := r.transactionCollection.FindOne(ctx, filter).Decode(&transaction)
+	if err != nil {
+		return transaction, err
+	}
+
+	return transaction, nil
 }

@@ -11,3 +11,8 @@ type CreateTransactionInput struct {
 type GetTransactionsInput struct {
 	User entities.User
 }
+
+type GetTransactionInput struct {
+	ID   string
+	User entities.User
+}

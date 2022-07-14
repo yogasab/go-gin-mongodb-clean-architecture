@@ -18,7 +18,6 @@ import (
 )
 
 func InitializeRoutes(router *gin.Engine) {
-
 	// User
 	userCollection := db.GetCollection(db.DB, "users")
 	userRepository := userRepo.NewUserRepository(userCollection)
