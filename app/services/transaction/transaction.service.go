@@ -12,6 +12,7 @@ import (
 
 type Service interface {
 	CreateTransaction(input dto.CreateTransactionInput) (string, error)
+	GetTransactions() ([]entities.Transaction, error)
 }
 
 type service struct {
@@ -43,4 +44,13 @@ func (s *service) CreateTransaction(input dto.CreateTransactionInput) (string, e
 	}
 
 	return newTransaction, nil
+}
+
+func (s *service) GetTransactions() ([]entities.Transaction, error) {
+	transactions, err := s.transactionRepository.FindAll()
+	if err != nil {
+		return transactions, err
+	}
+
+	return transactions, nil
 }
