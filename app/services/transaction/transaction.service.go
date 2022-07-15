@@ -15,6 +15,7 @@ type Service interface {
 	CreateTransaction(input dto.CreateTransactionInput) (string, error)
 	GetTransactions(input dto.GetTransactionsInput) ([]entities.Transaction, error)
 	GetTransaction(input dto.GetTransactionInput) (entities.Transaction, error)
+	GetUserTransaction(UserID string) ([]entities.Transaction, error)
 }
 
 type service struct {
@@ -76,4 +77,14 @@ func (s *service) GetTransaction(input dto.GetTransactionInput) (entities.Transa
 	}
 
 	return transaction, nil
+}
+
+func (s *service) GetUserTransaction(UserID string) ([]entities.Transaction, error) {
+	objID, _ := primitive.ObjectIDFromHex(UserID)
+	transactions, err := s.transactionRepository.FindByUserID(objID)
+	if err != nil {
+		return transactions, err
+	}
+
+	return transactions, nil
 }
