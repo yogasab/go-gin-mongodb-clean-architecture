@@ -15,6 +15,7 @@ type Repository interface {
 	Create(transaction entities.Transaction) (string, error)
 	FindAll() ([]entities.Transaction, error)
 	FindByID(ID primitive.ObjectID) (entities.Transaction, error)
+	FindByUserID(UserID primitive.ObjectID) ([]entities.Transaction, error)
 }
 
 type repository struct {
@@ -72,4 +73,37 @@ func (r *repository) FindByID(ID primitive.ObjectID) (entities.Transaction, erro
 	}
 
 	return transaction, nil
+}
+
+func (r *repository) FindByUserID(UserID primitive.ObjectID) ([]entities.Transaction, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	searchFilter := bson.M{"user": UserID}
+	aggSearch := bson.M{"$match": searchFilter}
+	aggPopulate := bson.M{
+		"$lookup": bson.M{
+			"from":         "users",
+			"localField":   "user",
+			"foreignField": "_id",
+			"as":           "users",
+		},
+	}
+
+	var transactions []entities.Transaction
+	cursor, err := r.transactionCollection.Aggregate(ctx, []bson.M{aggSearch, aggPopulate})
+	if err != nil {
+		return transactions, err
+	}
+
+	for cursor.Next(ctx) {
+		var transaction entities.Transaction
+		err := cursor.Decode(&transaction)
+		if err != nil {
+			return transactions, err
+		}
+		transactions = append(transactions, transaction)
+	}
+
+	return transactions, nil
 }

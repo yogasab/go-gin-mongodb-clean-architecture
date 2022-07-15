@@ -51,3 +51,15 @@ func TestCreateTransaction(t *testing.T) {
 	assert.NotNil(t, newTransaction)
 	assert.NoError(t, err)
 }
+
+func TestFindUserTransactions(t *testing.T) {
+	objID, _ := primitive.ObjectIDFromHex("62bd416dd08bdf54fe7ed518")
+
+	transactions, err := transactionRepository.FindByUserID(objID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotNil(t, transactions)
+	assert.NoError(t, err)
+}
