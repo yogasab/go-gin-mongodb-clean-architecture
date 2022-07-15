@@ -55,3 +55,13 @@ func TestCreateTransaction(t *testing.T) {
 	assert.NotNil(t, newTransaction)
 	assert.NoError(t, err)
 }
+
+func TestGetUserTransactions(t *testing.T) {
+	transactions, err := transactionService.GetUserTransaction("62bbc5f1a7dbcd9b551b7db5")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	assert.NotNil(t, transactions)
+	assert.NoError(t, err)
+}
