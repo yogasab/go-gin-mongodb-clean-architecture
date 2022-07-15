@@ -18,7 +18,7 @@ var (
 	transactionService    = transactionServ.NewService(transactionRepository)
 )
 
-func TestTransactionService(t *testing.T) {
+func TestGetTransactions(t *testing.T) {
 	objID, _ := primitive.ObjectIDFromHex("62ce383116ab6dcc787cc583")
 
 	transactions, err := transactionService.GetTransactions(dto.GetTransactionsInput{User: entities.User{ID: objID, Role: "admin"}})
@@ -41,5 +41,17 @@ func TestGetTransaction(t *testing.T) {
 	}
 
 	assert.NotNil(t, transaction)
+	assert.NoError(t, err)
+}
+
+func TestCreateTransaction(t *testing.T) {
+	objID, _ := primitive.ObjectIDFromHex("62bd416dd08bdf54fe7ed518")
+
+	newTransaction, err := transactionService.CreateTransaction(dto.CreateTransactionInput{Campaign: "62c272d6c7cc6524da5a03e2", User: entities.User{ID: objID}, Amount: 120000})
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	assert.NotNil(t, newTransaction)
 	assert.NoError(t, err)
 }

@@ -33,7 +33,7 @@ func (s *service) CreateTransaction(input dto.CreateTransactionInput) (string, e
 	transaction.User = input.User.ID
 	campaignIDObj, _ := primitive.ObjectIDFromHex(input.Campaign)
 	transaction.Campaign = campaignIDObj
-	transaction.Code = fmt.Sprintf("TRX-%s", input.Campaign)
+	transaction.Code = fmt.Sprintf("TRX-%s", ID.Hex())
 	transaction.Amount = input.Amount
 	transaction.PaymentURL = ""
 	transaction.Status = "PENDING"

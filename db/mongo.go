@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -32,7 +33,11 @@ func ConnectDB() *mongo.Client {
 }
 
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-	collection := client.Database("go-gin-mongodb-clean-architecture").Collection(collectionName)
+	dbName := "go-gin-mongodb-clean-architecture"
+	if os.Getenv("ENV") == "dev" {
+		dbName = "go-gin-mongodb-clean-architecture-test"
+	}
+	collection := client.Database(dbName).Collection(collectionName)
 
 	return collection
 }
