@@ -74,6 +74,6 @@ func InitializeRoutes(router *gin.Engine) {
 	{
 		transactionAPIRouter.POST("/", middlewares.AuthMiddleware(authService, userService), transactionHandler.CreateTransaction)
 		transactionAPIRouter.GET("/", middlewares.AuthMiddleware(authService, userService), transactionHandler.GetTransactions)
-
+		transactionAPIRouter.GET("/:id", middlewares.AuthMiddleware(authService, userService), transactionHandler.GetTransaction)
 	}
 }
