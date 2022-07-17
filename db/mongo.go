@@ -34,8 +34,10 @@ func ConnectDB() *mongo.Client {
 
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
 	dbName := "go-gin-mongodb-clean-architecture"
-	if os.Getenv("ENV") == "dev" {
+	if os.Getenv("ENV") == "test" {
 		dbName = "go-gin-mongodb-clean-architecture-test"
+	} else if os.Getenv("ENV") == "dev" {
+		dbName = "go-gin-mongodb-clean-architecture"
 	}
 	collection := client.Database(dbName).Collection(collectionName)
 

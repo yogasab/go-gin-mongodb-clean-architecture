@@ -7,8 +7,9 @@ import (
 	"go-gin-mongodb-clean-architecture/app/services/auth"
 	"go-gin-mongodb-clean-architecture/app/services/user"
 	"go-gin-mongodb-clean-architecture/helpers"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gin-gonic/gin"
 )
