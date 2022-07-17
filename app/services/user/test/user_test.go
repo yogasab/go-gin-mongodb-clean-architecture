@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var (
@@ -16,6 +17,16 @@ var (
 	userRepository = userRepo.NewUserRepository(userCollection)
 	userService    = userServ.NewService(userRepository)
 )
+var ID, _ = primitive.ObjectIDFromHex("62d3b23cbc16e9853696308d")
+var newUserObject = dto.CreateNewUserInput{
+	ID:         ID,
+	Name:       "Yoga Baskoro",
+	Email:      "yogasab40@gmail.com",
+	Password:   "password",
+	Location:   "Ontario",
+	Role:       "user",
+	Occupation: "Developer",
+}
 
 func TestGetAllUsers(t *testing.T) {
 	users, err := userService.GetAllUsers()
@@ -63,5 +74,25 @@ func TestCheckUserAvailability(t *testing.T) {
 	assert.NotNil(t, isAvailable)
 	assert.Equal(t, false, isAvailable)
 	assert.Equal(t, "bool", reflect.Bool.String())
+	assert.NoError(t, err)
+}
+
+func TestCreateUser(t *testing.T) {
+	newUser, err := userService.CreateUser(newUserObject, "token-test-123")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotNil(t, newUser)
+	assert.NoError(t, err)
+}
+
+func TestDeleteUserByID(t *testing.T) {
+	deletedUser, err := userService.DeleteUserByID(ID.Hex())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotNil(t, deletedUser)
 	assert.NoError(t, err)
 }
