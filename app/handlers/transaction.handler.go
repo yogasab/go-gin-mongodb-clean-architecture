@@ -78,3 +78,24 @@ func (h *transactionHandler) GetTransaction(ctx *gin.Context) {
 	response := helpers.APIResponse(http.StatusOK, "success", "Transaction fetched successfully", gin.H{"transaction": transaction})
 	ctx.JSON(http.StatusOK, response)
 }
+
+func (h *transactionHandler) GetUserTransactions(ctx *gin.Context) {
+	UserID := ctx.Param("id")
+	user := ctx.MustGet("user").(entities.User)
+
+	if user.ID.Hex() != UserID {
+		response := helpers.APIResponse(http.StatusForbidden, "failed", "You are not be able to perform this route", gin.H{"errors": "You are not be able to perform this route"})
+		ctx.JSON(http.StatusForbidden, response)
+		return
+	}
+
+	transactions, err := h.transactionService.GetUserTransaction(UserID)
+	if err != nil {
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to get transaction", gin.H{"errors": err.Error()})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helpers.APIResponse(http.StatusOK, "success", "User Transactions fetched successfully", gin.H{"transactions": transactions})
+	ctx.JSON(http.StatusOK, response)
+}

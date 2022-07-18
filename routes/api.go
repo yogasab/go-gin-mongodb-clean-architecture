@@ -51,6 +51,7 @@ func InitializeRoutes(router *gin.Engine) {
 		userAPIRouter.PUT("/:id", userAPIHandler.UpdateUserByID)
 		userAPIRouter.POST("/avatars", userAPIHandler.UploadUserAvatar)
 		userAPIRouter.GET("/profile", middlewares.AuthMiddleware(authService, userService), userAPIHandler.MyProfile)
+		userAPIRouter.GET("/:id/transactions", middlewares.AuthMiddleware(authService, userService), transactionHandler.GetUserTransactions)
 	}
 
 	authAPIRouter := router.Group("/api/v1/auth")
