@@ -55,7 +55,7 @@ func (h *transactionHandler) GetTransactions(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.APIResponse(http.StatusOK, "success", "Transactions fetched successfully", gin.H{"transactions": transactions})
+	response := helpers.APIResponse(http.StatusOK, "success", "Transactions fetched successfully", gin.H{"results": len(transactions), "transactions": transactions})
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -96,6 +96,20 @@ func (h *transactionHandler) GetUserTransactions(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.APIResponse(http.StatusOK, "success", "User Transactions fetched successfully", gin.H{"transactions": transactions})
+	response := helpers.APIResponse(http.StatusOK, "success", "User Transactions fetched successfully", gin.H{"results": len(transactions), "transactions": transactions})
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (h *transactionHandler) GetCampaignTransaction(ctx *gin.Context) {
+	CampaignID := ctx.Param("id")
+
+	transactions, err := h.transactionService.GetCampaignTransactions(CampaignID)
+	if err != nil {
+		response := helpers.APIResponse(http.StatusBadRequest, "failed", "Failed to get transaction", gin.H{"errors": err.Error()})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helpers.APIResponse(http.StatusOK, "success", "Campaign Transactions fetched successfully", gin.H{"results": len(transactions), "transactions": transactions})
 	ctx.JSON(http.StatusOK, response)
 }

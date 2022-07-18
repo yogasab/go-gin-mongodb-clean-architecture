@@ -67,6 +67,7 @@ func InitializeRoutes(router *gin.Engine) {
 		campaignAPIRouter.GET("/:id", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaign)
 		campaignAPIRouter.PUT("/:id", middlewares.AuthMiddleware(authService, userService), campaignHandler.UpdateCampaignByID)
 		campaignAPIRouter.POST("/campaign-images", middlewares.AuthMiddleware(authService, userService), campaignImageHandler.CreateCampaignImage)
+		campaignAPIRouter.GET("/:id/transactions", middlewares.AuthMiddleware(authService, userService), transactionHandler.GetCampaignTransaction)
 		campaignAPIRouter.PUT("/details/:slug", middlewares.AuthMiddleware(authService, userService), campaignHandler.UpdateCampaignBySlug)
 		campaignAPIRouter.GET("/details/:slug", middlewares.AuthMiddleware(authService, userService), campaignHandler.GetCampaignBySlug)
 	}
