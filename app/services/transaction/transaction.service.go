@@ -16,6 +16,7 @@ type Service interface {
 	GetTransactions(input dto.GetTransactionsInput) ([]entities.Transaction, error)
 	GetTransaction(input dto.GetTransactionInput) (entities.Transaction, error)
 	GetUserTransaction(UserID string) ([]entities.Transaction, error)
+	GetCampaignTransactions(CampaignID string) ([]entities.Transaction, error)
 }
 
 type service struct {
@@ -82,6 +83,17 @@ func (s *service) GetTransaction(input dto.GetTransactionInput) (entities.Transa
 func (s *service) GetUserTransaction(UserID string) ([]entities.Transaction, error) {
 	objID, _ := primitive.ObjectIDFromHex(UserID)
 	transactions, err := s.transactionRepository.FindByUserID(objID)
+	if err != nil {
+		return transactions, err
+	}
+
+	return transactions, nil
+}
+
+func (s *service) GetCampaignTransactions(CampaignID string) ([]entities.Transaction, error) {
+	objID, _ := primitive.ObjectIDFromHex(CampaignID)
+
+	transactions, err := s.transactionRepository.FindByCampaignID(objID)
 	if err != nil {
 		return transactions, err
 	}

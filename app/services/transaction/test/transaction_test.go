@@ -32,9 +32,9 @@ func TestGetTransactions(t *testing.T) {
 }
 
 func TestGetTransaction(t *testing.T) {
-	objID, _ := primitive.ObjectIDFromHex("62bd416dd08bdf54fe7ed518")
+	objID, _ := primitive.ObjectIDFromHex("62bbc5f1a7dbcd9b551b7db5")
 
-	transaction, err := transactionService.GetTransaction(dto.GetTransactionInput{ID: "62ce383116ab6dcc787cc583", User: entities.User{ID: objID}})
+	transaction, err := transactionService.GetTransaction(dto.GetTransactionInput{ID: "62d164d05a874806b314084c", User: entities.User{ID: objID}})
 
 	if err != nil {
 		t.Fatal(err)
@@ -60,6 +60,16 @@ func TestGetUserTransactions(t *testing.T) {
 	transactions, err := transactionService.GetUserTransaction("62bbc5f1a7dbcd9b551b7db5")
 	if err != nil {
 		t.Fatal(err.Error())
+	}
+
+	assert.NotNil(t, transactions)
+	assert.NoError(t, err)
+}
+
+func TestGetCampaignTransactions(t *testing.T) {
+	transactions, err := transactionService.GetCampaignTransactions("62c272d6c7cc6524da5a03e2")
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	assert.NotNil(t, transactions)
