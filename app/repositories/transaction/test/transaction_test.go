@@ -63,3 +63,16 @@ func TestFindUserTransactions(t *testing.T) {
 	assert.NotNil(t, transactions)
 	assert.NoError(t, err)
 }
+
+func TestFindCampaignTransactions(t *testing.T) {
+	objID, _ := primitive.ObjectIDFromHex("62c272d6c7cc6524da5a03e2")
+
+	transactions, err := transactionRepository.FindByCampaignID(objID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotNil(t, transactions)
+	assert.Equal(t, 3, len(transactions))
+	assert.NoError(t, err)
+}
