@@ -75,7 +75,9 @@ func (h *transactionHandler) GetTransaction(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.APIResponse(http.StatusOK, "success", "Transaction fetched successfully", gin.H{"transaction": transaction})
+	transactionFormatter := dto.FormatTransaction(transaction)
+
+	response := helpers.APIResponse(http.StatusOK, "success", "Transaction fetched successfully", gin.H{"transaction": transactionFormatter})
 	ctx.JSON(http.StatusOK, response)
 }
 
