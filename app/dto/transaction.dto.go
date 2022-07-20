@@ -44,3 +44,14 @@ func FormatTransaction(transaction entities.Transaction) TransactionFormatter {
 
 	return transactionFormatter
 }
+
+func FormatTransactions(transactions []entities.Transaction) []TransactionFormatter {
+	var transactionsFormatter []TransactionFormatter
+
+	for _, transaction := range transactions {
+		transactionFormatter := FormatTransaction(transaction)
+		transactionsFormatter = append(transactionsFormatter, transactionFormatter)
+	}
+
+	return transactionsFormatter
+}

@@ -55,7 +55,9 @@ func (h *transactionHandler) GetTransactions(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.APIResponse(http.StatusOK, "success", "Transactions fetched successfully", gin.H{"results": len(transactions), "transactions": transactions})
+	transactionsFormatter := dto.FormatTransactions(transactions)
+
+	response := helpers.APIResponse(http.StatusOK, "success", "Transactions fetched successfully", gin.H{"results": len(transactions), "transactions": transactionsFormatter})
 	ctx.JSON(http.StatusOK, response)
 }
 
